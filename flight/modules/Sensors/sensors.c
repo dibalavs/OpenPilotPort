@@ -195,6 +195,12 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         accel_test = gyro_test;
 #endif
         break;
+    case 0x04:
+#if defined(PIOS_INCLUDE_BMC050)
+        gyro_test  = PIOS_BMC050_Test();
+        accel_test = gyro_test;
+        break;
+#endif
     default:
         PIOS_DEBUG_Assert(0);
     }
@@ -341,6 +347,28 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             }
 #endif /* PIOS_INCLUDE_MPU6000 */
             break;
+        case 0x04:
+#if defined(PIOS_INCLUDE_BMC050)
+			{
+				// Accelerometer data
+				static uint32_t lastAccelUpdate = 0;
+				struct pios_bmc050_accel_data accel_data;
+				if(PIOS_DELAY_DiffuS(lastAccelUpdate) >= PIOS_BMC050_GetUpdateAccelTimeoutuS())
+				{
+					lastAccelUpdate = timeval;
+					PIOS_BMC050_ObtainAccelData();
+				}
+
+				PIOS_BMC050_ReadAccel(&accel_data);
+				accel_accum[1] += accel_data.accel_x;
+				accel_accum[0] += accel_data.accel_y;
+				accel_accum[2] -= accel_data.accel_z;
+				accel_samples++;
+				accel_scaling = PIOS_BMC050_GetAccelScale();
+				accelsData.temperature = accel_data.accel_temperature;
+			}
+#endif
+        	break;
         default:
             PIOS_DEBUG_Assert(0);
         }
@@ -424,6 +452,38 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             mag_update_time = PIOS_DELAY_GetRaw();
         }
 #endif /* if defined(PIOS_INCLUDE_HMC5883) */
+
+#if defined(PIOS_INCLUDE_BMC050)
+        MagnetometerData mag;
+        static uint32_t lastMagUpdate = 0;
+        if (PIOS_DELAY_DiffuS(lastMagUpdate) >= PIOS_BMC050_GetUpdateMagTimeoutuS()) {
+        	lastMagUpdate = timeval;
+        	PIOS_BMC050_ObtainMagData();
+        	struct pios_bmc050_mag_data mag_data;
+        	PIOS_BMC050_ReadMag(&mag_data);
+            float mags[3] = { mag_data.mag_y * mag_scale[0] - mag_bias[0],
+                              mag_data.mag_x * mag_scale[1] - mag_bias[1],
+                              -mag_data.mag_z * mag_scale[2] - mag_bias[2] };
+            if (rotate) {
+                float mag_out[3];
+                rot_mult(R, mags, mag_out);
+                mag.x = mag_out[0];
+                mag.y = mag_out[1];
+                mag.z = mag_out[2];
+            } else {
+                mag.x = mags[0];
+                mag.y = mags[1];
+                mag.z = mags[2];
+            }
+
+            // Correct for mag bias and update if the rate is non zero
+            if (cal.MagBiasNullingRate > 0) {
+                magOffsetEstimation(&mag);
+            }
+
+            MagnetometerSet(&mag);
+        }
+#endif /* if defined(PIOS_INCLUDE_BMC050) */
 
 #ifdef PIOS_INCLUDE_WDG
         PIOS_WDG_UpdateFlag(PIOS_WDG_SENSORS);

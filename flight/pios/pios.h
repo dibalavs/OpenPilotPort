@@ -173,6 +173,11 @@
 #include <pios_bma180.h>
 #endif
 
+#ifdef PIOS_INCLUDE_BMC050
+/* BMC050 magnetometer and accelerometer */
+#include <pios_bmc050.h>
+#endif
+
 #ifdef PIOS_INCLUDE_L3GD20
 /* L3GD20 3-Axis Gyro */
 #include <pios_l3gd20.h>
