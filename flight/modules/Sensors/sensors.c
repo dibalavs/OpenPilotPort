@@ -366,6 +366,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 				accel_samples++;
 				accel_scaling = PIOS_BMC050_GetAccelScale();
 				accelsData.temperature = accel_data.accel_temperature;
+				error = true;
 			}
 #endif
         	break;
@@ -456,6 +457,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 #if defined(PIOS_INCLUDE_BMC050)
         MagnetometerData mag;
         static uint32_t lastMagUpdate = 0;
+        error = true;
         if (PIOS_DELAY_DiffuS(lastMagUpdate) >= PIOS_BMC050_GetUpdateMagTimeoutuS()) {
         	lastMagUpdate = timeval;
         	PIOS_BMC050_ObtainMagData();

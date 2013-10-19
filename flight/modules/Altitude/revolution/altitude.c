@@ -37,7 +37,7 @@
  */
 
 #include <openpilot.h>
-
+#include "pios.h"
 #include "altitude.h"
 #include "baroaltitude.h" // object that will be updated by the module
 #if defined(PIOS_INCLUDE_HCSR04)
@@ -80,6 +80,7 @@ int32_t AltitudeInitialize()
 #if defined(PIOS_INCLUDE_HCSR04)
     SonarAltitudeInitialize();
 #endif
+
     return 0;
 }
 MODULE_INITCALL(AltitudeInitialize, AltitudeStart);
@@ -140,9 +141,11 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
         if (temp_press_interleave_count == 0) {
 #endif
         // Update the temperature data
+#ifdef PIOS_INCLUDE_MS5611
         PIOS_MS5611_StartADC(TemperatureConv);
         vTaskDelay(PIOS_MS5611_GetDelay());
         PIOS_MS5611_ReadADC();
+#endif
 
 #ifdef PIOS_MS5611_SLOW_TEMP_RATE
         temp_press_interleave_count = PIOS_MS5611_SLOW_TEMP_RATE;
@@ -150,9 +153,11 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
 #endif
 
         // Update the pressure data
+#ifdef PIOS_INCLUDE_MS5611
         PIOS_MS5611_StartADC(PressureConv);
         vTaskDelay(PIOS_MS5611_GetDelay());
         PIOS_MS5611_ReadADC();
+
 
 
         temp  = PIOS_MS5611_GetTemperature();
@@ -168,6 +173,27 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
             // Update the AltitudeActual UAVObject
             BaroAltitudeSet(&data);
         }
+#endif
+
+#ifdef PIOS_INCLUDE_LPS331AP
+        vTaskDelay(PIOS_LPS331AP_GetUpdateTimeoutuS() / 1000 / portTICK_RATE_MS);
+        PIOS_LPS331AP_ObtainData();
+        struct pios_lps331ap_data lps33data;
+        PIOS_LPS331AP_ReadBaro(&lps33data);
+
+        temp  = lps33data.temp;
+        press = lps33data.baro;
+
+        float altitude = 44330.0f * (1.0f - powf(press / 101.3250f, (1.0f / 5.255f)));
+
+        if (!isnan(altitude)) {
+            data.Altitude    = altitude;
+            data.Temperature = temp;
+            data.Pressure    = press;
+            // Update the AltitudeActual UAVObject
+            BaroAltitudeSet(&data);
+        }
+#endif
     }
 }
 

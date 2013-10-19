@@ -178,6 +178,11 @@
 #include <pios_bmc050.h>
 #endif
 
+#ifdef PIOS_INCLUDE_LPS331AP
+/* LPS331AP barometr */
+#include <pios_lps331ap.h>
+#endif
+
 #ifdef PIOS_INCLUDE_L3GD20
 /* L3GD20 3-Axis Gyro */
 #include <pios_l3gd20.h>
