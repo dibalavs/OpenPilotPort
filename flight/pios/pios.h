@@ -183,6 +183,10 @@
 #include <pios_lps331ap.h>
 #endif
 
+#ifdef PIOS_INCLUDE_L3G4200D
+#include <pios_l3g4200d.h>
+#endif
+
 #ifdef PIOS_INCLUDE_L3GD20
 /* L3GD20 3-Axis Gyro */
 #include <pios_l3gd20.h>

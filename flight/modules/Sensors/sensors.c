@@ -197,10 +197,14 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         break;
     case 0x04:
 #if defined(PIOS_INCLUDE_BMC050)
-        gyro_test  = PIOS_BMC050_Test();
-        accel_test = gyro_test;
-        break;
+        accel_test  = PIOS_BMC050_Test();
 #endif
+
+#ifdef PIOS_INCLUDE_L3G4200D
+        gyro_test  = PIOS_L3G4200D_GyroTest();
+#endif
+		break;
+
     default:
         PIOS_DEBUG_Assert(0);
     }
@@ -355,7 +359,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 				struct pios_bmc050_accel_data accel_data;
 				if(PIOS_DELAY_DiffuS(lastAccelUpdate) >= PIOS_BMC050_GetUpdateAccelTimeoutuS())
 				{
-					lastAccelUpdate = timeval;
+					lastAccelUpdate = PIOS_DELAY_GetRaw();
 					PIOS_BMC050_ObtainAccelData();
 				}
 
@@ -366,9 +370,33 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 				accel_samples++;
 				accel_scaling = PIOS_BMC050_GetAccelScale();
 				accelsData.temperature = accel_data.accel_temperature;
-				error = true;
+				error = true; // need wait for data.
 			}
 #endif
+#if defined(PIOS_INCLUDE_L3G4200D)
+            {
+                struct pios_l3g_gyro_data gyro;
+                static uint32_t lastGyroUpdate = 0;
+                gyro_samples = 0;
+                if(PIOS_DELAY_DiffuS(lastGyroUpdate) >= PIOS_L3G4200D_GetUpdateGyroTimeoutuS())
+				{
+					lastGyroUpdate = PIOS_DELAY_GetRaw();
+					PIOS_L3G4200D_ObtainData();
+				}
+
+                PIOS_L3G4200D_ReadGyro(&gyro);
+                gyro_samples   = 1;
+                gyro_accum[1] += gyro.gyro_x;
+                gyro_accum[0] += gyro.gyro_y;
+                gyro_accum[2] -= gyro.gyro_z;
+
+                gyro_scaling = PIOS_L3G4200D_GetScale();
+
+                // Get temp from last reading
+                gyrosData.temperature = gyro.temperature;
+                error = true;
+            }
+#endif /* if defined(PIOS_INCLUDE_L3GD20) */
         	break;
         default:
             PIOS_DEBUG_Assert(0);
