@@ -297,15 +297,15 @@ void PIOS_BMC050_ObtainAccelData()
 	struct pios_bmc050_raw_data raw;
 
 	// X coordinate raw
-	while((rx = PIOS_BMC050_GetReg(BMC_ACCEL_X_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT == 0);
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_X_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
 	raw.accel_x = (PIOS_BMC050_GetReg(BMC_ACCEL_X_LSB_ADDR + 1) << 2) | (rx >> 6);
 
 	// Y coordinate raw
-	while((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Y_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT == 0);
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Y_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
 	raw.accel_y = (PIOS_BMC050_GetReg(BMC_ACCEL_Y_LSB_ADDR + 1) << 2) | (rx >> 6);
 
 	// Z coordinate raw
-	while((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Z_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT == 0);
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Z_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
 	raw.accel_z = (PIOS_BMC050_GetReg(BMC_ACCEL_Z_LSB_ADDR + 1) << 2) | (rx >> 6);
 
 	// raw temperature
@@ -330,7 +330,7 @@ void PIOS_BMC050_ObtainMagData()
 	PIOS_BMC050_SetMag();
 
 	// raw hall resistance;
-	while((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT == 0);
+	while(((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT )== 0);
 	raw.mag_hall_resistance = (PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR + 1) << 6) | (rx >> 2);
 
 	// x coord raw
