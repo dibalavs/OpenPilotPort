@@ -214,6 +214,11 @@
 #include <pios_bmp085.h>
 #endif
 
+#ifdef PIOS_INCLUDE_BMP085_I2C
+/* BMP085 Barometric Pressure Sensor */
+#include <pios_bmp085_i2c.h>
+#endif
+
 #ifdef PIOS_INCLUDE_MS5611
 /* MS5611 Barometric Pressure Sensor */
 #include <pios_ms5611.h>

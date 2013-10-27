@@ -197,7 +197,8 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         break;
     case 0x04:
 #if defined(PIOS_INCLUDE_BMC050)
-        accel_test  = PIOS_BMC050_Test();
+        accel_test  = PIOS_BMC050_AccelTest();
+        accel_test += PIOS_BMC050_MagTest();
 #endif
 
 #ifdef PIOS_INCLUDE_L3G4200D
@@ -228,7 +229,6 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     // Main task loop
     lastSysTime = xTaskGetTickCount();
     bool error = false;
-    uint32_t mag_update_time = PIOS_DELAY_GetRaw();
     while (1) {
         // TODO: add timeouts to the sensor reads and set an error if the fail
         sensor_dt_us = PIOS_DELAY_DiffuS(timeval);

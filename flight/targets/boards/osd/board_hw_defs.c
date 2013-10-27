@@ -380,6 +380,7 @@ static const struct pios_usart_cfg pios_usart_telem_main_cfg = {
 /*
  * I2C Adapters
  */
+
 void PIOS_I2C_flexiport_adapter_ev_irq_handler(void);
 void PIOS_I2C_flexiport_adapter_er_irq_handler(void);
 void I2C2_EV_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_ev_irq_handler")));

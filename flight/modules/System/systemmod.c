@@ -98,7 +98,9 @@ static xQueueHandle objectPersistenceQueue;
 static bool stackOverflow;
 static bool mallocFailed;
 static HwSettingsData bootHwSettings;
+#ifdef PIOS_INCLUDE_FLASH
 static struct PIOS_FLASHFS_Stats fsStats;
+#endif
 // Private functions
 static void objectUpdatedCb(UAVObjEvent *ev);
 static void hwSettingsUpdatedCb(UAVObjEvent *ev);
@@ -527,6 +529,7 @@ static void updateStats()
         idleCounter = 0;
     }
 #if !defined(ARCH_POSIX) && !defined(ARCH_WIN32)
+#ifdef PIOS_INCLUDE_FLASH
     if (pios_uavo_settings_fs_id) {
         PIOS_FLASHFS_GetStats(pios_uavo_settings_fs_id, &fsStats);
         stats.SysSlotsFree   = fsStats.num_free_slots;
@@ -537,6 +540,7 @@ static void updateStats()
         stats.UsrSlotsFree   = fsStats.num_free_slots;
         stats.UsrSlotsActive = fsStats.num_active_slots;
     }
+#endif // PIOS_INCLUDE_FLASH
 #endif
     portTickType now = xTaskGetTickCount();
     if (now > lastTickCount) {

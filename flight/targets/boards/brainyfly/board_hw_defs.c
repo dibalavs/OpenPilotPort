@@ -31,9 +31,9 @@
 static const struct pios_led pios_leds[] = {
     [PIOS_LED_HEARTBEAT] = {
         .pin                =             {
-            .gpio = GPIOB,
+            .gpio = GPIOE,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_12,
+                .GPIO_Pin   = GPIO_Pin_2,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -43,9 +43,9 @@ static const struct pios_led pios_leds[] = {
     },
     [PIOS_LED_ALARM] =     {
         .pin                =             {
-            .gpio = GPIOB,
+            .gpio = GPIOE,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_6,
+                .GPIO_Pin   = GPIO_Pin_3,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -56,9 +56,9 @@ static const struct pios_led pios_leds[] = {
 #ifdef PIOS_RFM22B_DEBUG_ON_TELEM
     [PIOS_LED_D1] =        {
         .pin                =             {
-            .gpio = GPIOC,
+            .gpio = GPIOE,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_6,
+                .GPIO_Pin   = GPIO_Pin_4,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -68,9 +68,9 @@ static const struct pios_led pios_leds[] = {
     },
     [PIOS_LED_D2] =        {
         .pin                =             {
-            .gpio = GPIOC,
+            .gpio = GPIOE,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_7,
+                .GPIO_Pin   = GPIO_Pin_5,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -80,9 +80,9 @@ static const struct pios_led pios_leds[] = {
     },
     [PIOS_LED_D3] =        {
         .pin                =             {
-            .gpio = GPIOC,
+            .gpio = GPIOE,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_8,
+                .GPIO_Pin   = GPIO_Pin_6,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -94,7 +94,7 @@ static const struct pios_led pios_leds[] = {
         .pin                =             {
             .gpio = GPIOC,
             .init =             {
-                .GPIO_Pin   = GPIO_Pin_9,
+                .GPIO_Pin   = GPIO_Pin_13,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
@@ -110,103 +110,10 @@ static const struct pios_led_cfg pios_led_cfg = {
     .num_leds = NELEMENTS(pios_leds),
 };
 
-static const struct pios_led pios_leds_v2[] = {
-    [PIOS_LED_HEARTBEAT] = {
-        .pin                =             {
-            .gpio = GPIOB,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_5,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-    [PIOS_LED_ALARM] =     {
-        .pin                =             {
-            .gpio = GPIOB,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_4,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-#ifdef PIOS_RFM22B_DEBUG_ON_TELEM
-    [PIOS_LED_D1] =        {
-        .pin                =             {
-            .gpio = GPIOB,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_13,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-    [PIOS_LED_D2] =        {
-        .pin                =             {
-            .gpio = GPIOB,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_14,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-    [PIOS_LED_D3] =        {
-        .pin                =             {
-            .gpio = GPIOB,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_15,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-    [PIOS_LED_D4] =        {
-        .pin                =             {
-            .gpio = GPIOC,
-            .init =             {
-                .GPIO_Pin   = GPIO_Pin_6,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        },
-    },
-#endif /* ifdef PIOS_RFM22B_DEBUG_ON_TELEM */
-};
-
-static const struct pios_led_cfg pios_led_v2_cfg = {
-    .leds     = pios_leds_v2,
-    .num_leds = NELEMENTS(pios_leds_v2),
-};
-
-const struct pios_led_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(uint32_t board_revision)
+const struct pios_led_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(uint32_t a)
 {
-    switch (board_revision) {
-    case 2:
-        return &pios_led_cfg;
-
-        break;
-    case 3:
-        return &pios_led_v2_cfg;
-
-        break;
-    default:
-        PIOS_DEBUG_Assert(0);
-    }
-    return NULL;
+	(void)a;
+	return &pios_led_cfg;
 }
 
 #endif /* PIOS_INCLUDE_LED */
@@ -343,10 +250,247 @@ void PIOS_OVERO_irq_handler(void)
 
 #endif /* PIOS_OVERO_SPI */
 
+#if defined(PIOS_INCLUDE_L3G4200D)
+static const struct pios_spi_cfg l3g4200d_spi_cfg = {
+	    .regs  = SPI2,
+	    .remap = GPIO_AF_SPI2,
+	    .init  = {
+	        .SPI_Mode              = SPI_Mode_Master,
+	        .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
+	        .SPI_DataSize          = SPI_DataSize_8b,
+	        .SPI_NSS                                   = SPI_NSS_Soft,
+	        .SPI_FirstBit          = SPI_FirstBit_MSB,
+	        .SPI_CRCPolynomial     = 7,
+	        .SPI_CPOL              = SPI_CPOL_Low,
+	        .SPI_CPHA              = SPI_CPHA_1Edge,
+	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8,
+	    },
+	    .use_crc = false,
+	    .dma     = {
+	        .irq                                       = {
+	            // Note this is the stream ID that triggers interrupts (in this case RX)
+	            .flags = (DMA_IT_TCIF0 | DMA_IT_TEIF0 | DMA_IT_HTIF0),
+	            .init  = {
+	                .NVIC_IRQChannel    = DMA1_Stream0_IRQn,
+	                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+	                .NVIC_IRQChannelSubPriority        = 0,
+	                .NVIC_IRQChannelCmd = DISABLE,
+	            },
+	        },
+
+	        .rx                                        = {
+	            .channel = DMA1_Stream0,
+	            .init    = {
+	                .DMA_Channel            = DMA_Channel_0,
+	                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI2->DR),
+	                .DMA_DIR                = DMA_DIR_PeripheralToMemory,
+	                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
+	                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
+	                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+	                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
+	                .DMA_Mode               = DMA_Mode_Normal,
+	                .DMA_Priority           = DMA_Priority_Medium,
+	                // TODO: Enable FIFO
+	                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
+	                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
+	                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
+	                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
+	            },
+	        },
+	        .tx                                        = {
+	            .channel = DMA1_Stream5,
+	            .init    = {
+	                .DMA_Channel            = DMA_Channel_0,
+	                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI2->DR),
+	                .DMA_DIR                = DMA_DIR_MemoryToPeripheral,
+	                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
+	                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
+	                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+	                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
+	                .DMA_Mode               = DMA_Mode_Normal,
+	                .DMA_Priority           = DMA_Priority_Medium,
+	                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
+	                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
+	                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
+	                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
+	            },
+	        },
+	    },
+	    .sclk                                          = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_13,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .miso                                          = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_14,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .mosi                                          = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_15,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .slave_count                                   = 1,
+	    .ssel                                          = {
+	        {
+	            .gpio = GPIOB,
+	            .init = {
+	                .GPIO_Pin   = GPIO_Pin_12,
+	                .GPIO_Speed = GPIO_Speed_50MHz,
+	                .GPIO_Mode  = GPIO_Mode_OUT,
+	                .GPIO_OType = GPIO_OType_PP,
+	                .GPIO_PuPd  = GPIO_PuPd_UP
+	            }
+	        }
+	    },
+};
+#endif // PIOS_INCLUDE_L3G4200D
+
+#ifdef PIOS_INCLUDE_BMC050
+
+static const struct pios_spi_cfg bmc050_spi_cfg = {
+	    .regs  = SPI3,
+	    .remap = GPIO_AF_SPI3,
+	    .init  = {
+	        .SPI_Mode              = SPI_Mode_Master,
+	        .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
+	        .SPI_DataSize          = SPI_DataSize_8b,
+	        .SPI_NSS                                   = SPI_NSS_Soft,
+	        .SPI_FirstBit          = SPI_FirstBit_MSB,
+	        .SPI_CRCPolynomial     = 7,
+	        .SPI_CPOL              = SPI_CPOL_Low,
+	        .SPI_CPHA              = SPI_CPHA_1Edge,
+	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8,
+	    },
+	    .use_crc = false,
+	    .dma     = {
+	        .irq                                       = {
+	            // Note this is the stream ID that triggers interrupts (in this case RX)
+	            .flags = (DMA_IT_TCIF0 | DMA_IT_TEIF0 | DMA_IT_HTIF0),
+	            .init  = {
+	                .NVIC_IRQChannel    = DMA1_Stream0_IRQn,
+	                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+	                .NVIC_IRQChannelSubPriority        = 0,
+	                .NVIC_IRQChannelCmd = DISABLE,
+	            },
+	        },
+
+	        .rx                                        = {
+	            .channel = DMA1_Stream0,
+	            .init    = {
+	                .DMA_Channel            = DMA_Channel_0,
+	                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI3->DR),
+	                .DMA_DIR                = DMA_DIR_PeripheralToMemory,
+	                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
+	                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
+	                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+	                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
+	                .DMA_Mode               = DMA_Mode_Normal,
+	                .DMA_Priority           = DMA_Priority_Medium,
+	                // TODO: Enable FIFO
+	                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
+	                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
+	                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
+	                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
+	            },
+	        },
+	        .tx                                        = {
+	            .channel = DMA1_Stream5,
+	            .init    = {
+	                .DMA_Channel            = DMA_Channel_0,
+	                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI3->DR),
+	                .DMA_DIR                = DMA_DIR_MemoryToPeripheral,
+	                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
+	                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
+	                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+	                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
+	                .DMA_Mode               = DMA_Mode_Normal,
+	                .DMA_Priority           = DMA_Priority_Medium,
+	                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
+	                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
+	                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
+	                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
+	            },
+	        },
+	    },
+	    .sclk                                          = {
+	        .gpio = GPIOC,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_10,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .miso                                          = {
+	        .gpio = GPIOC,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_11,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .mosi                                          = {
+	        .gpio = GPIOC,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_12,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_OType = GPIO_OType_PP,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	        },
+	    },
+	    .slave_count                                   = 2,
+	    .ssel                                          = {
+	        { // accelerometer
+	            .gpio = GPIOD,
+	            .init = {
+	                .GPIO_Pin   = GPIO_Pin_3,
+	                .GPIO_Speed = GPIO_Speed_50MHz,
+	                .GPIO_Mode  = GPIO_Mode_OUT,
+	                .GPIO_OType = GPIO_OType_PP,
+	                .GPIO_PuPd  = GPIO_PuPd_UP
+	            }
+	        },
+	        { // magnetometer
+	            .gpio = GPIOD,
+	            .init = {
+	                .GPIO_Pin   = GPIO_Pin_2,
+	                .GPIO_Speed = GPIO_Speed_50MHz,
+	                .GPIO_Mode  = GPIO_Mode_OUT,
+	                .GPIO_OType = GPIO_OType_PP,
+	                .GPIO_PuPd  = GPIO_PuPd_UP
+	            }
+	        },
+	    },
+};
+
+#endif
+
 /*
  * SPI1 Interface
  * Used for MPU6000 gyro and accelerometer
  */
+#ifdef PIOS_INCLUDE_MPU6000
 void PIOS_SPI_gyro_irq_handler(void);
 void DMA2_Stream0_IRQHandler(void) __attribute__((alias("PIOS_SPI_gyro_irq_handler")));
 void DMA2_Stream3_IRQHandler(void) __attribute__((alias("PIOS_SPI_gyro_irq_handler")));
@@ -464,12 +608,13 @@ void PIOS_SPI_gyro_irq_handler(void)
     /* Call into the generic code to handle the IRQ for this specific device */
     PIOS_SPI_IRQ_Handler(pios_spi_gyro_id);
 }
-
+#endif // PIOS_INCLUDE_MPU6000
 
 /*
  * SPI3 Interface
  * Used for Flash and the RFM22B
  */
+#ifdef PIOS_INCLUDE_RFM22B
 void PIOS_SPI_telem_flash_irq_handler(void);
 void DMA1_Stream0_IRQHandler(void) __attribute__((alias("PIOS_SPI_telem_flash_irq_handler")));
 void DMA1_Stream5_IRQHandler(void) __attribute__((alias("PIOS_SPI_telem_flash_irq_handler")));
@@ -600,6 +745,7 @@ void PIOS_SPI_telem_flash_irq_handler(void)
     PIOS_SPI_IRQ_Handler(pios_spi_telem_flash_id);
 }
 
+#endif //PIOS_INCLUDE_RFM22B
 
 #if defined(PIOS_INCLUDE_RFM22B)
 #include <pios_rfm22b_priv.h>
@@ -1098,6 +1244,115 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
 
 #include <pios_i2c_priv.h>
 
+#ifdef PIOS_INCLUDE_LPS331AP
+static const struct pios_i2c_adapter_cfg lps331ap_i2c_cfg = {
+	    .regs  = I2C1,
+	    .remap = GPIO_AF_I2C1,
+	    .init  = {
+	        .I2C_Mode = I2C_Mode_I2C,
+	        .I2C_OwnAddress1                       = 0,
+	        .I2C_Ack  = I2C_Ack_Enable,
+	        .I2C_AcknowledgedAddress               = I2C_AcknowledgedAddress_7bit,
+	        .I2C_DutyCycle                         = I2C_DutyCycle_2,
+	        .I2C_ClockSpeed                        = 400000,                      /* bits/s */
+	    },
+	    .transfer_timeout_ms                       = 50,
+	    .scl                                       = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_8,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_OType = GPIO_OType_OD,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+	        },
+	    },
+	    .sda                                       = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_9,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_OType = GPIO_OType_OD,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+	        },
+	    },
+	    .event                                     = {
+	        .flags = 0,     /* FIXME: check this */
+	        .init  = {
+	            .NVIC_IRQChannel    = I2C1_EV_IRQn,
+	            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGHEST,
+	            .NVIC_IRQChannelSubPriority        = 0,
+	            .NVIC_IRQChannelCmd = ENABLE,
+	        },
+	    },
+	    .error                                     = {
+	        .flags = 0,     /* FIXME: check this */
+	        .init  = {
+	            .NVIC_IRQChannel    = I2C1_ER_IRQn,
+	            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGHEST,
+	            .NVIC_IRQChannelSubPriority        = 0,
+	            .NVIC_IRQChannelCmd = ENABLE,
+	        },
+	    },
+};
+#endif // PIOS_INCLUDE_LPS331AP
+
+#ifdef PIOS_INCLUDE_BMP085_I2C
+static const struct pios_i2c_adapter_cfg pios_bmp085_i2c_cfg = {
+	    .regs  = I2C1,
+	    .remap = GPIO_AF_I2C1,
+	    .init  = {
+	        .I2C_Mode = I2C_Mode_I2C,
+	        .I2C_OwnAddress1                       = 0,
+	        .I2C_Ack  = I2C_Ack_Enable,
+	        .I2C_AcknowledgedAddress               = I2C_AcknowledgedAddress_7bit,
+	        .I2C_DutyCycle                         = I2C_DutyCycle_2,
+	        .I2C_ClockSpeed                        = 400000,                      /* bits/s */
+	    },
+	    .transfer_timeout_ms                       = 50,
+	    .scl                                       = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_8,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_OType = GPIO_OType_OD,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+	        },
+	    },
+	    .sda                                       = {
+	        .gpio = GPIOB,
+	        .init = {
+	            .GPIO_Pin   = GPIO_Pin_9,
+	            .GPIO_Mode  = GPIO_Mode_AF,
+	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_OType = GPIO_OType_OD,
+	            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+	        },
+	    },
+	    .event                                     = {
+	        .flags = 0,     /* FIXME: check this */
+	        .init  = {
+	            .NVIC_IRQChannel    = I2C1_EV_IRQn,
+	            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGHEST,
+	            .NVIC_IRQChannelSubPriority        = 0,
+	            .NVIC_IRQChannelCmd = ENABLE,
+	        },
+	    },
+	    .error                                     = {
+	        .flags = 0,     /* FIXME: check this */
+	        .init  = {
+	            .NVIC_IRQChannel    = I2C1_ER_IRQn,
+	            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGHEST,
+	            .NVIC_IRQChannelSubPriority        = 0,
+	            .NVIC_IRQChannelCmd = ENABLE,
+	        },
+	    },
+};
+#endif // I2C
+
+#ifdef PIOS_INCLUDE_MS5611
 /*
  * I2C Adapters
  */
@@ -1173,7 +1428,9 @@ void PIOS_I2C_mag_pressure_adapter_er_irq_handler(void)
     PIOS_I2C_ER_IRQ_Handler(pios_i2c_mag_pressure_adapter_id);
 }
 
+#endif //PIOS_INCLUDE_MS5611
 
+#ifdef PIOS_INCLUDE_COM_FLEXI
 void PIOS_I2C_flexiport_adapter_ev_irq_handler(void);
 void PIOS_I2C_flexiport_adapter_er_irq_handler(void);
 void I2C2_EV_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_ev_irq_handler")));
@@ -1247,6 +1504,8 @@ void PIOS_I2C_flexiport_adapter_er_irq_handler(void)
 
 void PIOS_I2C_pressure_adapter_ev_irq_handler(void);
 void PIOS_I2C_pressure_adapter_er_irq_handler(void);
+#endif // PIOS_INCLUDE_COM_FLEXI
+
 
 #endif /* PIOS_INCLUDE_I2C */
 

@@ -35,7 +35,8 @@
 #define LPS331AP_READ_ADDR (0xBB)
 #define LPS331AP_WRITE_ADDR (0xBA)
 
-struct pios_lps331ap_cfg *cfg = 0;
+const struct pios_lps331ap_cfg *cfg = 0;
+static uint32_t i2c_id = 0;
 static struct pios_lps331ap_data data;
 static bool data_ready = false;
 
@@ -72,7 +73,7 @@ static int32_t PIOS_LPS331AP_Read(uint8_t address, uint8_t *buffer, uint8_t len)
         }
     };
 
-    return PIOS_I2C_Transfer(PIOS_I2C_LPS331_ADAPTER, txn_list, NELEMENTS(txn_list));
+    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
 }
 
 /**
@@ -85,7 +86,7 @@ static int32_t PIOS_LPS331AP_Read(uint8_t address, uint8_t *buffer, uint8_t len)
  */
 static int32_t PIOS_LPS331AP_Write(uint8_t address, uint8_t buffer)
 {
-    uint8_t data[] = {
+    uint8_t dataBuffer[] = {
         address,
         buffer,
     };
@@ -95,22 +96,23 @@ static int32_t PIOS_LPS331AP_Write(uint8_t address, uint8_t buffer)
             .info = __func__,
             .addr = LPS331AP_WRITE_ADDR,
             .rw   = PIOS_I2C_TXN_WRITE,
-            .len  = sizeof(data),
-            .buf  = data,
+            .len  = sizeof(dataBuffer),
+            .buf  = dataBuffer,
         }
         ,
     };
 
     ;
-    return PIOS_I2C_Transfer(PIOS_I2C_LPS331_ADAPTER, txn_list, NELEMENTS(txn_list));
+    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
 }
 
 /**
  * @brief Initialize the lps331ap barometer sensor.
  * @return none
  */
-void PIOS_LPS331AP_Init(const struct pios_lps331ap_cfg *cfg_)
+void PIOS_LPS331AP_Init(uint32_t i2c_id_, const struct pios_lps331ap_cfg *cfg_)
 {
+	i2c_id = i2c_id_;
     cfg = cfg_;
 
     // Reset barometer.
@@ -161,25 +163,25 @@ void PIOS_LPS331AP_ObtainData()
 	if ((status & LPS331AP_STATUS_REG_TEMP_AVAILABLE) == LPS331AP_STATUS_REG_TEMP_AVAILABLE)
 	{
 		uint8_t tempbuff[2];
-		while (PIOS_LPS331AP_Read(LPS331AP_TEMP_OUT_LSB_ADDR, &tempbuff, 2) != 0)
+		while (PIOS_LPS331AP_Read(LPS331AP_TEMP_OUT_LSB_ADDR, (uint8_t*)&tempbuff, 2) != 0)
 		{
 			continue;
 		}
 
 		uint16_t rawTemp = 0;
-		rawTemp = tempbuff[1] << 8 + tempbuff[0];
+		rawTemp = (tempbuff[1] << 8) + tempbuff[0];
 		data.temp = 42.5f + rawTemp / 480.0f;
 	}
 
 	// obtain baro data
 	uint8_t barobuff[3];
-	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR, &barobuff, 3) != 0)
+	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR, (uint8_t*)&barobuff, 3) != 0)
 	{
 		continue;
 	}
 
 	uint32_t rawBaro = 0;
-	rawBaro = barobuff[2] << 16 + barobuff[1] << 8 + barobuff[0];
+	rawBaro = (barobuff[2] << 16) + (barobuff[1] << 8) + barobuff[0];
 	data.baro = rawBaro / 4096.0f / 10.0f; // mbar to kPa
 
 	data_ready = true;
@@ -194,7 +196,7 @@ int32_t PIOS_LPS331AP_ReadBaro(struct pios_lps331ap_data *data_)
 	return 0;
 }
 
-const uint32_t defaultTimeout = 40;
+static const uint32_t defaultTimeout = 40;
 
 uint32_t PIOS_LPS331AP_GetUpdateTimeoutuS()
 {
@@ -222,7 +224,10 @@ uint32_t PIOS_LPS331AP_GetUpdateTimeoutuS()
 		return 1000000 / 25;
 
 	case LPS331AP_ODR_BARO_1HZ_TEMP_1HZ:
-			return 1000000 / 1;
+		return 1000000 / 1;
+
+	case LPS331AP_ODR_ONE_SHOOT:
+		return defaultTimeout * 1000;
 	}
 
 	return defaultTimeout * 1000;

@@ -57,6 +57,7 @@
 #define SAMPLE_PERIOD_MS 500
 // Private types
 
+#ifdef PIOS_INCLUDE_ADC
 // Private variables
 static bool batteryEnabled = false;
 
@@ -70,12 +71,15 @@ static int8_t currentADCPin = -1; // ADC pin for current
 // Private functions
 static void onTimer(UAVObjEvent *ev);
 
+#endif // PIOS_INCLUDE_ADC
 /**
  * Initialise the module, called on startup
  * \returns 0 on success or -1 if initialisation failed
  */
 int32_t BatteryInitialize(void)
 {
+#ifdef PIOS_INCLUDE_ADC
+
 #ifdef MODULE_BATTERY_BUILTIN
     batteryEnabled = true;
 #else
@@ -118,10 +122,11 @@ int32_t BatteryInitialize(void)
         memset(&ev, 0, sizeof(UAVObjEvent));
         EventPeriodicCallbackCreate(&ev, onTimer, SAMPLE_PERIOD_MS / portTICK_RATE_MS);
     }
-
+#endif // PIOS_INCLUDE_ADC
     return 0;
 }
 
+#ifdef PIOS_INCLUDE_ADC
 MODULE_INITCALL(BatteryInitialize, 0);
 #define HAS_SENSOR(x) batterySettings.SensorType[x] == FLIGHTBATTERYSETTINGS_SENSORTYPE_ENABLED
 static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
@@ -201,7 +206,7 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
 
     FlightBatteryStateSet(&flightBatteryData);
 }
-
+#endif //PIOS_INCLUDE_ADC
 /**
  * @}
  */

@@ -95,11 +95,11 @@ struct pios_lps331ap_cfg {
 };
 
 struct pios_lps331ap_data {
-	float32_t baro; // kPa
-	float32_t temp; // C deg
+	float baro; // kPa
+	float temp; // C deg
 };
 
-extern int32_t PIOS_LPS331AP_Init(uint32_t spi_id, uint32_t slave_num_accel, const struct pios_lps331ap_cfg *cfg);
+extern void PIOS_LPS331AP_Init(uint32_t i2c_id, const struct pios_lps331ap_cfg *cfg);
 extern void PIOS_LPS331AP_ObtainData();
 extern int32_t PIOS_LPS331AP_ReadBaro(struct pios_lps331ap_data *data);
 extern uint32_t PIOS_LPS331AP_GetUpdateTimeoutuS();

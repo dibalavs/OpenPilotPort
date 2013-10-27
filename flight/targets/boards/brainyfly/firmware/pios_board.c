@@ -35,6 +35,7 @@
 #include <oplinkreceiver.h>
 #include <pios_oplinkrcvr_priv.h>
 #include <taskinfo.h>
+#include <pios_flashfs.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -193,6 +194,33 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
 };
 #endif /* PIOS_INCLUDE_MPU6000 */
 
+#ifdef PIOS_INCLUDE_BMC050
+static const struct pios_bmc050_cfg bmc050_cfg = {
+		.mag_rep_xy = 47,
+		.mag_rep_z = 83,
+		.mag_odr = BMC_MAG_ODR_20HZ,
+
+		.accel_bandwidth = BMC_ACCEL_BW_31HZ,
+		.accel_range = BMC_ACCEL_RANGE_8G
+};
+#endif //PIOS_INCLUDE_BMC050
+
+#if defined(PIOS_INCLUDE_LPS331AP)
+static const struct pios_lps331ap_cfg lps331ap_cfg = {
+		.baro_avg = LPS331AP_BARO_AVG_256,
+		.temp_avg = LPS331AP_TEMP_AVG_128,
+		.odr = LPS331AP_ODR_BARO_7HZ_TEMP_1HZ
+};
+#endif // PIOS_INCLUDE_LPS331AP
+
+#if defined(PIOS_INCLUDE_L3G4200D)
+static const struct pios_l3g_cfg l3g4200d_cfg = {
+		.bandwidth = L3G_CTRL_REG1_ODR_100HZ_CUTOF_12_5HZ,
+		.cutoff = L3G_CTRL_REG2_CUTOF_8HZ,
+		.scale = L3G_CTRL_REG4_2000DPS
+};
+#endif
+
 /* One slot per selectable receiver group.
  *  eg. PWM, PPM, GCS, SPEKTRUM1, SPEKTRUM2, SBUS
  * NOTE: No slot in this map for NONE.
@@ -319,6 +347,7 @@ static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM] = pios_ppm_rcvr_id;
 }
 
+#if defined(PIOS_INCLUDE_RFM22B)
 static void PIOS_Board_PPM_callback(const int16_t *channels)
 {
     uint8_t max_chan = (RFM22B_PPM_NUM_CHANNELS < OPLINKRECEIVER_CHANNEL_NUMELEM) ? RFM22B_PPM_NUM_CHANNELS : OPLINKRECEIVER_CHANNEL_NUMELEM;
@@ -329,6 +358,7 @@ static void PIOS_Board_PPM_callback(const int16_t *channels)
     }
     OPLinkReceiverSet(&opl_rcvr);
 }
+#endif
 
 /**
  * PIOS_Board_Init()
@@ -351,15 +381,39 @@ void PIOS_Board_Init(void)
     PIOS_LED_Init(led_cfg);
 #endif /* PIOS_INCLUDE_LED */
 
+#ifdef PIOS_INCLUDE_BMP085_I2C
+    uint32_t bmp085_i2c_id;
+    PIOS_I2C_Init(&bmp085_i2c_id, &pios_bmp085_i2c_cfg);
+#endif
+
+#ifdef PIOS_INCLUDE_BMC050
+    uint32_t bmc050_spi_id;
+    PIOS_SPI_Init(&bmc050_spi_id, &bmc050_spi_cfg);
+#endif // PIOS_INCLUDE_BMC050
+
+#if defined(PIOS_INCLUDE_LPS331AP)
+    uint32_t lps331ap_i2c_id;
+    PIOS_I2C_Init(&lps331ap_i2c_id, &lps331ap_i2c_cfg);
+#endif
+
+#if defined(PIOS_INCLUDE_L3G4200D)
+    uint32_t l3g4200d_spi_id;
+    PIOS_SPI_Init(&l3g4200d_spi_id, &l3g4200d_spi_cfg);
+#endif
+
+#ifdef PIOS_INCLUDE_MPU6000
     /* Set up the SPI interface to the gyro/acelerometer */
     if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
+#endif // PIOS_INCLUDE_MPU6000
 
+#ifdef PIOS_INCLUDE_RFM22B
     /* Set up the SPI interface to the flash and rfm22b */
     if (PIOS_SPI_Init(&pios_spi_telem_flash_id, &pios_spi_telem_flash_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
+#endif
 
 #if defined(PIOS_INCLUDE_FLASH)
     /* Connect flash to the appropriate interface and configure it */
@@ -389,7 +443,9 @@ void PIOS_Board_Init(void)
     if (PIOS_IAP_ReadBootCmd(0) == PIOS_IAP_CLEAR_FLASH_CMD_0 &&
         PIOS_IAP_ReadBootCmd(1) == PIOS_IAP_CLEAR_FLASH_CMD_1 &&
         PIOS_IAP_ReadBootCmd(2) == PIOS_IAP_CLEAR_FLASH_CMD_2) {
+#ifdef PIOS_INCLUDE_FLASH
         PIOS_FLASHFS_Format(pios_uavo_settings_fs_id);
+#endif // PIOS_INCLUDE_FLASH
         PIOS_IAP_WriteBootCmd(0, 0);
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
@@ -666,9 +722,12 @@ void PIOS_Board_Init(void)
     switch (hwsettings_flexiport) {
     case HWSETTINGS_RM_FLEXIPORT_DISABLED:
         break;
+#ifdef PIOS_INCLUDE_COM_FLEXI
     case HWSETTINGS_RM_FLEXIPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
+#endif
+#ifdef PIOS_INCLUDE_I2C_FLEXI
     case HWSETTINGS_RM_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
         {
@@ -678,9 +737,12 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_I2C */
         break;
+#endif // PIOS_INCLUDE_I2C_FLEXI
+#ifdef PIOS_INCLUDE_COM_FLEXI
     case HWSETTINGS_RM_FLEXIPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
         break;
+#endif
     case HWSETTINGS_RM_FLEXIPORT_DSM2:
     case HWSETTINGS_RM_FLEXIPORT_DSMX10BIT:
     case HWSETTINGS_RM_FLEXIPORT_DSMX11BIT:
@@ -712,14 +774,15 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
+#ifdef PIOS_INCLUDE_COM_FLEXI
     case HWSETTINGS_RM_FLEXIPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
+#endif
     case HWSETTINGS_RM_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     } /* hwsettings_rm_flexiport */
-
 
     /* Initalize the RFM22B radio COM device. */
 #if defined(PIOS_INCLUDE_RFM22B)
@@ -908,10 +971,11 @@ void PIOS_Board_Init(void)
     PIOS_DEBUG_Init(pios_tim_servoport_all_pins, NELEMENTS(pios_tim_servoport_all_pins));
 #endif
 
+#ifdef PIOS_INCLUDE_MS5611
     if (PIOS_I2C_Init(&pios_i2c_mag_pressure_adapter_id, &pios_i2c_mag_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
-
+#endif
     PIOS_DELAY_WaitmS(50);
 
 #if defined(PIOS_INCLUDE_ADC)
@@ -929,6 +993,22 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_MPU6000)
     PIOS_MPU6000_Init(pios_spi_gyro_id, 0, &pios_mpu6000_cfg);
     PIOS_MPU6000_CONFIG_Configure();
+#endif
+
+#if defined(PIOS_INCLUDE_BMP085_I2C)
+    PIOS_BMP085_Init(bmp085_i2c_id);
+#endif
+
+#if defined(PIOS_INCLUDE_BMC050)
+    PIOS_BMC050_Init(bmc050_spi_id, 1, 2, &bmc050_cfg);
+#endif
+
+#if defined(PIOS_INCLUDE_LPS331AP)
+    PIOS_LPS331AP_Init(lps331ap_i2c_id, &lps331ap_cfg);
+#endif
+
+#if defined(PIOS_INCLUDE_L3G4200D)
+    PIOS_L3G4200D_Init(l3g4200d_spi_id, 0, &l3g4200d_cfg);
 #endif
 }
 

@@ -60,6 +60,7 @@ endif
 SRC += $(PIOSCOMMON)/pios_adxl345.c
 SRC += $(PIOSCOMMON)/pios_bma180.c
 SRC += $(PIOSCOMMON)/pios_bmp085.c
+SRC += $(PIOSCOMMON)/pios_bmp085_i2c.c
 SRC += $(PIOSCOMMON)/pios_etasv3.c
 SRC += $(PIOSCOMMON)/pios_gcsrcvr.c
 SRC += $(PIOSCOMMON)/pios_hcsr04.c

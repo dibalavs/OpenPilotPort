@@ -28,17 +28,17 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_BMP085_H
-#define PIOS_BMP085_H
+#ifndef PIOS_BMP085_I2C_H
+#define PIOS_BMP085_I2C_H
 
-#ifdef PIOS_INCLUDE_BMP085
+#ifdef PIOS_INCLUDE_BMP085_I2C
 
 /* BMP085 Addresses */
 #define BMP085_I2C_ADDR     0x77
 #define BMP085_CALIB_ADDR   0xAA
 #define BMP085_CALIB_LEN    22
 #define BMP085_CTRL_ADDR    0xF4
-#define BMP085_OVERSAMPLING PIOS_BMP085_OVERSAMPLING
+#define BMP085_OVERSAMPLING 3
 #define BMP085_PRES_ADDR    (0x34 + (BMP085_OVERSAMPLING << 6))
 #define BMP085_TEMP_ADDR    0x2E
 #define BMP085_ADC_MSB      0xF6
@@ -72,7 +72,7 @@ extern int32_t PIOS_BMP085_EOC;
 #endif
 
 /* Public Functions */
-extern void PIOS_BMP085_Init(void);
+extern void PIOS_BMP085_Init(uint32_t i2c_id);
 extern void PIOS_BMP085_StartADC(ConversionTypeTypeDef Type);
 extern void PIOS_BMP085_ReadADC(void);
 extern int16_t PIOS_BMP085_GetTemperature(void);
@@ -81,7 +81,7 @@ extern bool PIOS_BMP085_Read(uint8_t address, uint8_t *buffer, uint8_t len);
 extern bool PIOS_BMP085_Write(uint8_t address, uint8_t buffer);
 extern int32_t PIOS_BMP085_Test();
 
-#endif // PIOS_INCLUDE_BMP085_I2C
+#endif //PIOS_INCLUDEBMP_085_I2C
 
 #endif /* PIOS_BMP085_H */
 

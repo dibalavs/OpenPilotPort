@@ -68,7 +68,7 @@ enum l3g_ctrl_reg1_odr_cutoff { L3G_CTRL_REG1_ODR_100HZ_CUTOF_12_5HZ = (0x00 << 
 	   	   	   	   	   	   	    L3G_CTRL_REG1_ODR_800HZ_CUTOF_50HZ   = (0x0E << 4),
 	   	   	   	   	   	   	    L3G_CTRL_REG1_ODR_800HZ_CUTOF_110HZ  = (0x0F << 4) };
 
-enum l3g_ctrl_reg2_cutoff_freq { L3G_CTRL_REG2_CUTOF_8HZ  = 0x00,
+enum l3g_ctrl_reg2_cutoff_freq { L3G_CTRL_REG2_CUTOF_15HZ  = 0x00,
 								 L3G_CTRL_REG2_CUTOF_8HZ  = 0x01,
 	   	   	   	   	   	   	     L3G_CTRL_REG2_CUTOF_4HZ  = 0x02,
 	   	   	   	   	   	   	     L3G_CTRL_REG2_CUTOF_2HZ  = 0x03,
@@ -78,8 +78,6 @@ enum l3g_ctrl_reg2_cutoff_freq { L3G_CTRL_REG2_CUTOF_8HZ  = 0x00,
 	   	   	   	   	   	   	     L3G_CTRL_REG2_CUTOF_0_1HZ  = 0x07,
 	   	   	   	   	   	   	     L3G_CTRL_REG2_CUTOF_0_05HZ  = 0x08,
 	   	   	   	   	   	   	     L3G_CTRL_REG2_CUTOF_0_02HZ  = 0x09 };
-
-
 
 enum l3g_ctrl_reg4_scale { L3G_CTRL_REG4_200DPS = 0x00 << 5,
 						   L3G_CTRL_REG4_500DPS = 0x01 << 5,
@@ -91,10 +89,10 @@ enum { L3G_CTRL_REG5_HP_FILTER_EN = 0x10 };
 enum { L3G_STATUS_REG_XYZDA = 0x08 };
 
 struct pios_l3g_gyro_data {
-    float32_t gyro_x; // g
-    float32_t gyro_y; // g
-    float32_t gyro_z; // g
-    float32_t temperature; // C
+    float gyro_x; // g
+    float gyro_y; // g
+    float gyro_z; // g
+    float temperature; // C
 };
 
 struct pios_l3g_cfg {
@@ -104,11 +102,11 @@ struct pios_l3g_cfg {
 };
 
 /* Public Functions */
-extern int32_t PIOS_L3G4200D_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_l3g_cfg *cfg);
+extern void PIOS_L3G4200D_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_l3g_cfg *cfg);
 
 // Gyro functions
 extern float PIOS_L3G4200D_GetScale();
-extern int32_t PIOS_L3G4200D_ReadGyro(struct pios_bmc050_accel_data *data);
+extern int32_t PIOS_L3G4200D_ReadGyro(struct pios_l3g_gyro_data *data);
 extern void PIOS_L3G4200D_ObtainData();
 extern uint32_t PIOS_L3G4200D_GetUpdateGyroTimeoutuS();
 extern int32_t PIOS_L3G4200D_GyroTest();

@@ -89,25 +89,25 @@ enum bmc050_mag_odr { BMC_MAG_ODR_2HZ = (0x01 << 3),
 					  BMC_MAG_ODR_15HZ = (0x04 << 3),
 					  BMC_MAG_ODR_20HZ = (0x05 << 3),
 					  BMC_MAG_ODR_25HZ = (0x06 << 3),
-					  BMC_MAG_ODR_25HZ = (0x07 << 3)
+					  BMC_MAG_ODR_30HZ = (0x07 << 3)
 };
 
 enum bmc050_mag_operation_mode { BMC_MAG_OP_NORMAL   = 0x00,
 								 BMC_MAG_OP_FORCED   = 0x02,
 								 BMC_MAG_OP_SLEEP    = 0x06 };
 struct pios_bmc050_accel_data {
-    float32_t accel_x; // g
-    float32_t accel_y; // g
-    float32_t accel_z; // g
-    float32_t accel_temperature; // C
+    float accel_x; // g
+    float accel_y; // g
+    float accel_z; // g
+    float accel_temperature; // C
 };
 
 struct pios_bmc050_mag_data {
-	float32_t accel_temperature; // C
-    float32_t mag_hall_resistance;
-    float32_t mag_x; // mT
-	float32_t mag_y; // mT
-	float32_t mag_z; // mT
+	float accel_temperature; // C
+    float mag_hall_resistance;
+    float mag_x; // mT
+	float mag_y; // mT
+	float mag_z; // mT
 };
 
 struct pios_bmc050_cfg {
@@ -120,7 +120,7 @@ struct pios_bmc050_cfg {
 };
 
 /* Public Functions */
-extern int32_t PIOS_BMC050_Init(uint32_t spi_id, uint32_t slave_num_accel, uint32_t slave_num_mag, const struct pios_bmc050_cfg *cfg);
+extern void PIOS_BMC050_Init(uint32_t spi_id, uint32_t slave_num_accel, uint32_t slave_num_mag, const struct pios_bmc050_cfg *cfg);
 
 // Accelerometer functions
 extern float PIOS_BMC050_GetAccelScale();

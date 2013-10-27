@@ -176,13 +176,13 @@ void PIOS_BMC050_SetMag()
 void PIOS_BMC050_Init(uint32_t spi_id, uint32_t slave_num_accel, uint32_t slave_num_mag, const struct pios_bmc050_cfg *cfg)
 {
     //dev_cfg = cfg; // store config before enabling interrupt
-	devAccel->cfg = cfg;
-	devAccel->spi_id = spi_id;
-	devAccel->slave_num = slave_num_accel;
+	devAccel.cfg = cfg;
+	devAccel.spi_id = spi_id;
+	devAccel.slave_num = slave_num_accel;
 
-	devMag->cfg = cfg;
-	devMag->slave_num = slave_num_mag;
-	devMag->spi_id = spi_id;
+	devMag.cfg = cfg;
+	devMag.slave_num = slave_num_mag;
+	devMag.spi_id = spi_id;
 
     int32_t val = PIOS_BMC050_ConfigAccel(cfg);
     PIOS_Assert(val == 0);
@@ -240,7 +240,7 @@ static int32_t PIOS_BMC050_ConfigMag(const struct pios_bmc050_cfg *cfg)
 	return 0;
 }
 
-static float32_t PIOS_BMC050_RangeToValue()
+static float PIOS_BMC050_RangeToValue()
 {
 	switch (dev->cfg->accel_range)
 	{
@@ -262,11 +262,11 @@ static float32_t PIOS_BMC050_RangeToValue()
 	}
 }
 
-const float32_t mg_per_lsb = 1.953125f;
-const float32_t temp_per_lsb = 0.5f;
+const float mg_per_lsb = 1.953125f;
+const float temp_per_lsb = 0.5f;
 void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_accel_data *data)
 {
-	const float32_t coeff_g = PIOS_BMC050_RangeToValue() * mg_per_lsb * 0.001f;
+	const float coeff_g = PIOS_BMC050_RangeToValue() * mg_per_lsb * 0.001f;
 	data->accel_x = coeff_g * raw->accel_x;
 	data->accel_y = coeff_g * raw->accel_y;
 	data->accel_z = coeff_g * raw->accel_z;
@@ -275,8 +275,8 @@ void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_acc
 	// TODO do temperature compensation.
 }
 
-const float32_t mt_per_lsb_xy = 2000.0f / ((1 << 14) - 1);
-const float32_t mt_per_lsb_z = 5000.0f / ((1 << 16) - 1);
+const float mt_per_lsb_xy = 2000.0f / ((1 << 14) - 1);
+const float mt_per_lsb_z = 5000.0f / ((1 << 16) - 1);
 void NormalizeMagData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_mag_data *data)
 {
 	data->mag_x = raw->mag_x * mt_per_lsb_xy;
@@ -378,7 +378,7 @@ float PIOS_BMC050_GetMagScale()
 	return 1;
 }
 
-const uint32_t defaultTimeout = 40;
+static const uint32_t defaultTimeout = 40;
 
 uint32_t PIOS_BMC050_AccelBandwidthToPeriodMs(enum bmc050_accel_bandwidth bw)
 {
@@ -439,6 +439,9 @@ uint32_t PIOS_BMC050_GetUpdateMagTimeoutuS()
 
 	case BMC_MAG_ODR_25HZ:
 		return 1000000 / 25;
+
+	case BMC_MAG_ODR_30HZ:
+			return 1000000 / 30;
 	}
 
 	return defaultTimeout * 1000;
