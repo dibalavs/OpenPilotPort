@@ -33,6 +33,13 @@
 // Global variables
 const char *PIOS_DEBUG_AssertMsg = "ASSERT FAILED";
 
+#ifdef DEBUG
+void _sbrk()
+{
+
+}
+#endif
+
 #ifdef PIOS_ENABLE_DEBUG_PINS
 static const struct pios_tim_channel *debug_channels;
 static uint8_t debug_num_channels;

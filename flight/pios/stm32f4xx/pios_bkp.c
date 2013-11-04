@@ -86,6 +86,8 @@ uint16_t PIOS_BKP_ReadRegister(uint32_t regnumber)
     } else {
         return (uint16_t)RTC_ReadBackupRegister(pios_bkp_registers_map[regnumber]);
     }
+
+    return 0;
 }
 
 void PIOS_BKP_WriteRegister(uint32_t regnumber, uint16_t data)
