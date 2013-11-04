@@ -154,9 +154,9 @@ int16_t PIOS_BMP085_GetTemperature(void)
     return Temperature;
 }
 
-int32_t PIOS_BMP085_GetPressure(void)
+float PIOS_BMP085_GetPressure(void)
 {
-    return Pressure;
+    return Pressure / 1000.0f;
 }
 
 /**

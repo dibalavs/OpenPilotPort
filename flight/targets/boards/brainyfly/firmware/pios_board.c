@@ -207,7 +207,7 @@ static const struct pios_bmc050_cfg bmc050_cfg = {
 
 #if defined(PIOS_INCLUDE_LPS331AP)
 static const struct pios_lps331ap_cfg lps331ap_cfg = {
-		.baro_avg = LPS331AP_BARO_AVG_256,
+		.baro_avg = LPS331AP_BARO_AVG_512,
 		.temp_avg = LPS331AP_TEMP_AVG_128,
 		.odr = LPS331AP_ODR_BARO_7HZ_TEMP_1HZ
 };
@@ -381,20 +381,14 @@ void PIOS_Board_Init(void)
     PIOS_LED_Init(led_cfg);
 #endif /* PIOS_INCLUDE_LED */
 
-#ifdef PIOS_INCLUDE_BMP085_I2C
-    uint32_t bmp085_i2c_id;
-    PIOS_I2C_Init(&bmp085_i2c_id, &pios_bmp085_i2c_cfg);
+#if defined(PIOS_INCLUDE_BMP085_I2C) || defined(PIOS_INCLUDE_LPS331AP)
+    PIOS_I2C_Init(&i2c_2_bus_id, &pios_i2c_2_bus_cfg);
 #endif
 
 #ifdef PIOS_INCLUDE_BMC050
     uint32_t bmc050_spi_id;
     PIOS_SPI_Init(&bmc050_spi_id, &bmc050_spi_cfg);
 #endif // PIOS_INCLUDE_BMC050
-
-#if defined(PIOS_INCLUDE_LPS331AP)
-    uint32_t lps331ap_i2c_id;
-    PIOS_I2C_Init(&lps331ap_i2c_id, &lps331ap_i2c_cfg);
-#endif
 
 #if defined(PIOS_INCLUDE_L3G4200D)
     uint32_t l3g4200d_spi_id;
@@ -437,6 +431,8 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_RTC)
     PIOS_RTC_Init(&pios_rtc_main_cfg);
 #endif
+
+#ifdef PIOS_INCLUDE_IAP
     /* IAP System Setup */
     PIOS_IAP_Init();
     // check for safe mode commands from gcs
@@ -450,6 +446,8 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
     }
+#endif // PIOS_INCLUDE_IAP
+
 #ifdef PIOS_INCLUDE_WDG
     PIOS_WDG_Init();
 #endif
@@ -485,6 +483,7 @@ void PIOS_Board_Init(void)
     PIOS_TIM_InitClock(&tim_11_cfg);
     PIOS_TIM_InitClock(&tim_12_cfg);
 
+#ifdef PIOS_INCLUDE_IAP
     uint16_t boot_count = PIOS_IAP_ReadBootCount();
     if (boot_count < 3) {
         PIOS_IAP_WriteBootCount(++boot_count);
@@ -494,7 +493,7 @@ void PIOS_Board_Init(void)
         HwSettingsSetDefaults(HwSettingsHandle(), 0);
         AlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL);
     }
-
+#endif //PIOS_INCLUDE_IAP
 
     // PIOS_IAP_Init();
 
@@ -996,7 +995,7 @@ void PIOS_Board_Init(void)
 #endif
 
 #if defined(PIOS_INCLUDE_BMP085_I2C)
-    PIOS_BMP085_Init(bmp085_i2c_id);
+    PIOS_BMP085_Init(i2c_2_bus_id);
 #endif
 
 #if defined(PIOS_INCLUDE_BMC050)
@@ -1004,7 +1003,7 @@ void PIOS_Board_Init(void)
 #endif
 
 #if defined(PIOS_INCLUDE_LPS331AP)
-    PIOS_LPS331AP_Init(lps331ap_i2c_id, &lps331ap_cfg);
+    PIOS_LPS331AP_Init(i2c_2_bus_id, &lps331ap_cfg);
 #endif
 
 #if defined(PIOS_INCLUDE_L3G4200D)

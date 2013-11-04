@@ -32,8 +32,7 @@
 
 #ifdef PIOS_INCLUDE_LPS331AP
 
-#define LPS331AP_READ_ADDR (0xBB)
-#define LPS331AP_WRITE_ADDR (0xBA)
+#define LPS331AP_ADDR (0xBB >> 1)
 
 const struct pios_lps331ap_cfg *cfg = 0;
 static uint32_t i2c_id = 0;
@@ -58,7 +57,7 @@ static int32_t PIOS_LPS331AP_Read(uint8_t address, uint8_t *buffer, uint8_t len)
     const struct pios_i2c_txn txn_list[] = {
         {
             .info = __func__,
-            .addr = LPS331AP_WRITE_ADDR,
+            .addr = LPS331AP_ADDR,
             .rw   = PIOS_I2C_TXN_WRITE,
             .len  = sizeof(addr_buffer),
             .buf  = addr_buffer,
@@ -66,7 +65,7 @@ static int32_t PIOS_LPS331AP_Read(uint8_t address, uint8_t *buffer, uint8_t len)
         ,
         {
             .info = __func__,
-            .addr = LPS331AP_READ_ADDR,
+            .addr = LPS331AP_ADDR,
             .rw   = PIOS_I2C_TXN_READ,
             .len  = len,
             .buf  = buffer,
@@ -94,7 +93,7 @@ static int32_t PIOS_LPS331AP_Write(uint8_t address, uint8_t buffer)
     const struct pios_i2c_txn txn_list[] = {
         {
             .info = __func__,
-            .addr = LPS331AP_WRITE_ADDR,
+            .addr = LPS331AP_ADDR,
             .rw   = PIOS_I2C_TXN_WRITE,
             .len  = sizeof(dataBuffer),
             .buf  = dataBuffer,
@@ -115,22 +114,8 @@ void PIOS_LPS331AP_Init(uint32_t i2c_id_, const struct pios_lps331ap_cfg *cfg_)
 	i2c_id = i2c_id_;
     cfg = cfg_;
 
-    // Reset barometer.
-    while (PIOS_LPS331AP_Write(LPS331AP_CTRL_REG2_ADDR, LPS331AP_CTRL_REG2_RESET) != 0)
-    {
-    	continue;
-    }
-
-    PIOS_DELAY_WaitmS(20);
-
     // deactivate barometer (before setting odr)
     while (PIOS_LPS331AP_Write(LPS331AP_CTRL_REG1_ADDR, 0x00) != 0)
-    {
-    	continue;
-    }
-
-    // set odr
-    while (PIOS_LPS331AP_Write(LPS331AP_CTRL_REG1_ADDR, cfg->odr) != 0)
     {
     	continue;
     }
@@ -141,11 +126,12 @@ void PIOS_LPS331AP_Init(uint32_t i2c_id_, const struct pios_lps331ap_cfg *cfg_)
 		continue;
 	}
 
-    // activate barometer.
-    while (PIOS_LPS331AP_Write(LPS331AP_CTRL_REG1_ADDR, LPS331AP_CTRL_REG1_ACTIVE_MODE | cfg->odr) != 0)
-	{
+    // set odr and activate barometer.
+    while (PIOS_LPS331AP_Write(LPS331AP_CTRL_REG1_ADDR,
+    		LPS331AP_CTRL_REG1_ACTIVE_MODE | LPS331AP_CTRL_REG1_BLOCK_UPDATE | cfg->odr) != 0)
+    {
     	continue;
-	}
+    }
 }
 
 void PIOS_LPS331AP_ObtainData()
@@ -153,7 +139,7 @@ void PIOS_LPS331AP_ObtainData()
 	data_ready = false;
 
 	// wait for data available
-	uint8_t status;
+	uint8_t status = 0;
 	while (PIOS_LPS331AP_Read(LPS331AP_STATUS_REG_ADDR, &status, 1) != 0 || (status & LPS331AP_STATUS_REG_BARO_AVAILABLE) != LPS331AP_STATUS_REG_BARO_AVAILABLE)
 	{
 		continue;
@@ -163,7 +149,12 @@ void PIOS_LPS331AP_ObtainData()
 	if ((status & LPS331AP_STATUS_REG_TEMP_AVAILABLE) == LPS331AP_STATUS_REG_TEMP_AVAILABLE)
 	{
 		uint8_t tempbuff[2];
-		while (PIOS_LPS331AP_Read(LPS331AP_TEMP_OUT_LSB_ADDR, (uint8_t*)&tempbuff, 2) != 0)
+		while (PIOS_LPS331AP_Read(LPS331AP_TEMP_OUT_LSB_ADDR, (uint8_t*)tempbuff, 1) != 0)
+		{
+			continue;
+		}
+
+		while (PIOS_LPS331AP_Read(LPS331AP_TEMP_OUT_LSB_ADDR, (uint8_t*)(tempbuff + 1), 1) != 0)
 		{
 			continue;
 		}
@@ -175,7 +166,17 @@ void PIOS_LPS331AP_ObtainData()
 
 	// obtain baro data
 	uint8_t barobuff[3];
-	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR, (uint8_t*)&barobuff, 3) != 0)
+	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR, (uint8_t*)barobuff, 1) != 0)
+	{
+		continue;
+	}
+
+	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR + 1, (uint8_t*)(barobuff + 1), 1) != 0)
+	{
+		continue;
+	}
+
+	while (PIOS_LPS331AP_Read(LPS331AP_BARO_OUT_LSB_ADDR + 2, (uint8_t*)(barobuff + 2), 1) != 0)
 	{
 		continue;
 	}
@@ -231,6 +232,18 @@ uint32_t PIOS_LPS331AP_GetUpdateTimeoutuS()
 	}
 
 	return defaultTimeout * 1000;
+}
+
+int32_t PIOS_LPS331AP_Test()
+{
+	uint8_t val;
+	while(PIOS_LPS331AP_Read(LPS331AP_WHO_AM_I_ADDR, &val, 1) != 0)
+	{
+		continue;
+	}
+
+	PIOS_DEBUG_Assert(val == 0xBB);
+	return 0;
 }
 
 #endif /* PIOS_INCLUDE_LPS331AP */

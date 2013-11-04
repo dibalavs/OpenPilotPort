@@ -25,6 +25,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#ifdef PIOS_INCLUDE_IAP
+ 
 #include <openpilot.h>
 
 #include <pios_board_info.h>
@@ -262,3 +264,5 @@ static void resetTask(__attribute__((unused)) UAVObjEvent *ev)
         }
     }
 }
+
+#endif // PIOS_INCLUDE_IAP

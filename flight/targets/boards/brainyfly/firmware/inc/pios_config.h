@@ -63,7 +63,7 @@
 #define PIOS_INCLUDE_SPI
 /* #define PIOS_INCLUDE_GPIO */
 #define PIOS_INCLUDE_EXTI
-#define PIOS_INCLUDE_WDG
+//#define PIOS_INCLUDE_WDG
 
 /* PIOS USB functions */
 #define PIOS_INCLUDE_USB
@@ -96,16 +96,16 @@
 /* #define PIOS_INCLUDE_PPM_FLEXI */
 //#define PIOS_INCLUDE_I2C_FLEXI
 #define PIOS_INCLUDE_DSM
-#define PIOS_INCLUDE_SBUS
+//#define PIOS_INCLUDE_SBUS
 #define PIOS_INCLUDE_GCSRCVR
-#define PIOS_INCLUDE_OPLINKRCVR
+//#define PIOS_INCLUDE_OPLINKRCVR
 
 /* PIOS abstract receiver interface */
 #define PIOS_INCLUDE_RCVR
 
 /* PIOS common peripherals */
 #define PIOS_INCLUDE_LED
-#define PIOS_INCLUDE_IAP
+//#define PIOS_INCLUDE_IAP
 #define PIOS_INCLUDE_SERVO
 /* #define PIOS_INCLUDE_I2C_ESC */
 /* #define PIOS_INCLUDE_OVERO */

@@ -34,6 +34,7 @@
 
 #include <pios.h>
 
+#define LPS331AP_WHO_AM_I_ADDR 0x0F
 #define LPS331AP_RES_CONF_ADDR 0x10
 #define LPS331AP_CTRL_REG1_ADDR 0x20
 #define LPS331AP_CTRL_REG2_ADDR 0x21
@@ -44,9 +45,11 @@
 // 16 bit (2 bytes)
 #define LPS331AP_TEMP_OUT_LSB_ADDR 0x2B
 
-enum { LPS331AP_CTRL_REG1_ACTIVE_MODE = 0x80 };
+enum { LPS331AP_CTRL_REG1_ACTIVE_MODE = 0x80,
+	   LPS331AP_CTRL_REG1_BLOCK_UPDATE = 0x04};
 
-enum { LPS331AP_CTRL_REG2_RESET = 0x04 };
+enum { LPS331AP_CTRL_REG2_ONE_SHOOT = 0x01,
+	   LPS331AP_CTRL_REG2_RESET = 0x04 };
 
 enum { LPS331AP_STATUS_REG_TEMP_AVAILABLE = 0x01,
 	   LPS331AP_STATUS_REG_BARO_AVAILABLE = 0x02 };
@@ -73,7 +76,9 @@ enum lps331ap_baro_average_items
 	LPS331AP_BARO_AVG_32 = 5,
 	LPS331AP_BARO_AVG_64 = 6,
 	LPS331AP_BARO_AVG_128 = 7,
-	LPS331AP_BARO_AVG_256 = 8  // referable
+	LPS331AP_BARO_AVG_256 = 8,
+	LPS331AP_BARO_AVG_386 = 9,
+	LPS331AP_BARO_AVG_512 = 10	// preferable
 };
 
 enum lps331ap_temp_average_items
@@ -103,6 +108,7 @@ extern void PIOS_LPS331AP_Init(uint32_t i2c_id, const struct pios_lps331ap_cfg *
 extern void PIOS_LPS331AP_ObtainData();
 extern int32_t PIOS_LPS331AP_ReadBaro(struct pios_lps331ap_data *data);
 extern uint32_t PIOS_LPS331AP_GetUpdateTimeoutuS();
+extern int32_t PIOS_LPS331AP_Test();
 
 #endif /* PIOS_LPS331AP_H */
 

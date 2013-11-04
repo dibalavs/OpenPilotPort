@@ -81,6 +81,10 @@ int32_t AltitudeInitialize()
     SonarAltitudeInitialize();
 #endif
 
+#ifdef PIOS_INCLUDE_LPS331AP
+    PIOS_LPS331AP_Test();
+#endif
+
     return 0;
 }
 MODULE_INITCALL(AltitudeInitialize, AltitudeStart);
@@ -135,7 +139,7 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
             sample_rate = 25;
         }
 #endif /* if defined(PIOS_INCLUDE_HCSR04) */
-        float temp, press;
+        float temp = 0, press = 0, pressCounter = 0;
 #ifdef PIOS_MS5611_SLOW_TEMP_RATE
         temp_press_interleave_count--;
         if (temp_press_interleave_count == 0) {
@@ -175,6 +179,13 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
         }
 #endif
 
+#ifdef PIOS_INCLUDE_BMP085_I2C
+        PIOS_BMP085_StartADC(PressureConv);
+        PIOS_BMP085_ReadADC();
+        press += PIOS_BMP085_GetPressure();
+        pressCounter +=1;
+#endif
+
 #ifdef PIOS_INCLUDE_LPS331AP
         vTaskDelay(PIOS_LPS331AP_GetUpdateTimeoutuS() / 1000 / portTICK_RATE_MS);
         PIOS_LPS331AP_ObtainData();
@@ -182,18 +193,22 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
         PIOS_LPS331AP_ReadBaro(&lps33data);
 
         temp  = lps33data.temp;
-        press = lps33data.baro;
-
-        float altitude = 44330.0f * (1.0f - powf(press / 101.3250f, (1.0f / 5.255f)));
-
-        if (!isnan(altitude)) {
-            data.Altitude    = altitude;
-            data.Temperature = temp;
-            data.Pressure    = press;
-            // Update the AltitudeActual UAVObject
-            BaroAltitudeSet(&data);
-        }
+        press += lps33data.baro;
+        pressCounter +=1;
 #endif
+
+		if (pressCounter > 0)
+		{
+			press /= pressCounter;
+			float altitude = 44330.0f * (1.0f - powf(press / 101.3250f, (1.0f / 5.255f)));
+			if (!isnan(altitude) && altitude >= 0.00001f) {
+			   data.Altitude    = altitude;
+			   data.Temperature = temp;
+			   data.Pressure    = press;
+			   // Update the AltitudeActual UAVObject
+			   BaroAltitudeSet(&data);
+			}
+		}
     }
 }
 

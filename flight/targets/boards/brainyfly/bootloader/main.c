@@ -81,8 +81,10 @@ int main()
     // Make sure the brown out reset value for this chip
     // is 2.7 volts
     check_bor();
-
+	
+#ifdef PIOS_INCLUDE_USB
     USB_connected = PIOS_USB_CheckAvailable(0);
+#endif
 
     if (PIOS_IAP_CheckRequest() == true) {
         PIOS_DELAY_WaitmS(1000);
@@ -194,8 +196,10 @@ void jump_to_app()
         RCC_APB1PeriphResetCmd(0xffffffff, ENABLE);
         RCC_APB2PeriphResetCmd(0xffffffff, DISABLE);
         RCC_APB1PeriphResetCmd(0xffffffff, DISABLE);
-
+		
+#ifdef PIOS_INCLUDE_USB
         PIOS_USBHOOK_Deactivate();
+#endif
 
         JumpAddress = *(__IO uint32_t *)(bdinfo->fw_base + 4);
         Jump_To_Application = (pFunction)JumpAddress;
