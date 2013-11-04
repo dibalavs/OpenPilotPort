@@ -152,8 +152,8 @@
 
 /************************* PLL Parameters *************************************/
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#define PLL_M      10
-#define PLL_N      420
+#define PLL_M      16
+#define PLL_N      336
 
 /* SYSCLK = PLL_VCO / PLL_P */
 #define PLL_P      2
@@ -242,7 +242,13 @@ void SystemInit(void)
          
   /* Configure the System clock source, PLL Multiplier and Divider factors, 
      AHB/APBx prescalers and Flash settings ----------------------------------*/
+
   SetSysClock();
+
+  asm volatile ("nop" );
+  asm volatile ("nop" );
+  asm volatile ("nop" );
+  asm volatile ("nop" );
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
