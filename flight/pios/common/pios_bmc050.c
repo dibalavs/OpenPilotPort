@@ -175,7 +175,6 @@ void PIOS_BMC050_SetMag()
  */
 void PIOS_BMC050_Init(uint32_t spi_id, uint32_t slave_num_accel, uint32_t slave_num_mag, const struct pios_bmc050_cfg *cfg)
 {
-    //dev_cfg = cfg; // store config before enabling interrupt
 	devAccel.cfg = cfg;
 	devAccel.spi_id = spi_id;
 	devAccel.slave_num = slave_num_accel;
@@ -183,6 +182,12 @@ void PIOS_BMC050_Init(uint32_t spi_id, uint32_t slave_num_accel, uint32_t slave_
 	devMag.cfg = cfg;
 	devMag.slave_num = slave_num_mag;
 	devMag.spi_id = spi_id;
+
+	PIOS_BMC050_SetAccel();
+	PIOS_BMC050_ReleaseBus();
+
+	PIOS_BMC050_SetMag();
+	PIOS_BMC050_ReleaseBus();
 
     int32_t val = PIOS_BMC050_ConfigAccel(cfg);
     PIOS_Assert(val == 0);
@@ -270,7 +275,7 @@ void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_acc
 	data->accel_x = coeff_g * raw->accel_x;
 	data->accel_y = coeff_g * raw->accel_y;
 	data->accel_z = coeff_g * raw->accel_z;
-	data->accel_temperature = temp_per_lsb * raw->accel_temperature - 24.0f;
+	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f);
 
 	// TODO do temperature compensation.
 }
@@ -283,7 +288,7 @@ void NormalizeMagData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_mag_d
 	data->mag_y = raw->mag_y * mt_per_lsb_xy;
 	data->mag_z = raw->mag_z * mt_per_lsb_z;
 
-	data->accel_temperature = temp_per_lsb * raw->accel_temperature - 24.0f;
+	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f);
 	// TODO add temperature compensation.
 }
 
@@ -484,11 +489,26 @@ uint32_t PIOS_BMC050_GetUpdateAccelTimeoutuS()
 
 int32_t PIOS_BMC050_AccelTest()
 {
+	PIOS_BMC050_SetMag();
+	PIOS_BMC050_ReleaseBus();
+
+	PIOS_BMC050_SetAccel();
+	uint32_t rx = PIOS_BMC050_GetReg(BMC_ACCEL_CHIPID_ADDR);
+	PIOS_Assert(rx == 0x03);
+
 	return 0;
 }
 
 int32_t PIOS_BMC050_MagTest()
 {
+	PIOS_BMC050_SetAccel();
+	PIOS_BMC050_ReleaseBus();
+
+	PIOS_BMC050_SetMag();
+	PIOS_BMC050_SetReg(BMC_MAG_POWER, 1);
+	uint32_t rx = PIOS_BMC050_GetReg(BMC_MAG_CHIPID_ADDR);
+	PIOS_Assert(rx == 0x32);
+
 	return 0;
 }
 

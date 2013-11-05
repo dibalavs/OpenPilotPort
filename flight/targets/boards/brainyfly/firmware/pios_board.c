@@ -999,7 +999,7 @@ void PIOS_Board_Init(void)
 #endif
 
 #if defined(PIOS_INCLUDE_BMC050)
-    PIOS_BMC050_Init(bmc050_spi_id, 1, 2, &bmc050_cfg);
+    PIOS_BMC050_Init(bmc050_spi_id, 0, 1, &bmc050_cfg);
 #endif
 
 #if defined(PIOS_INCLUDE_LPS331AP)

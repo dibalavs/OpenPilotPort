@@ -242,12 +242,12 @@ static const struct pios_spi_cfg bmc050_spi_cfg = {
 	        .SPI_Mode              = SPI_Mode_Master,
 	        .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
 	        .SPI_DataSize          = SPI_DataSize_8b,
-	        .SPI_NSS                                   = SPI_NSS_Soft,
+	        .SPI_NSS               = SPI_NSS_Soft,
 	        .SPI_FirstBit          = SPI_FirstBit_MSB,
 	        .SPI_CRCPolynomial     = 7,
 	        .SPI_CPOL              = SPI_CPOL_Low,
 	        .SPI_CPHA              = SPI_CPHA_1Edge,
-	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8,
+	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4,
 	    },
 	    .use_crc = false,
 	    .dma     = {
@@ -307,27 +307,27 @@ static const struct pios_spi_cfg bmc050_spi_cfg = {
 	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .miso                                          = {
 	        .gpio = GPIOC,
 	        .init = {
 	            .GPIO_Pin   = GPIO_Pin_11,
-	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .mosi                                          = {
 	        .gpio = GPIOC,
 	        .init = {
 	            .GPIO_Pin   = GPIO_Pin_12,
-	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .slave_count                                   = 2,
@@ -339,7 +339,7 @@ static const struct pios_spi_cfg bmc050_spi_cfg = {
 	                .GPIO_Speed = GPIO_Speed_50MHz,
 	                .GPIO_Mode  = GPIO_Mode_OUT,
 	                .GPIO_OType = GPIO_OType_PP,
-	                .GPIO_PuPd  = GPIO_PuPd_UP
+	                .GPIO_PuPd  = GPIO_PuPd_NOPULL
 	            }
 	        },
 	        { // magnetometer
@@ -349,7 +349,7 @@ static const struct pios_spi_cfg bmc050_spi_cfg = {
 	                .GPIO_Speed = GPIO_Speed_50MHz,
 	                .GPIO_Mode  = GPIO_Mode_OUT,
 	                .GPIO_OType = GPIO_OType_PP,
-	                .GPIO_PuPd  = GPIO_PuPd_UP
+	                .GPIO_PuPd  = GPIO_PuPd_NOPULL
 	            }
 	        },
 	    },
