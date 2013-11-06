@@ -35,6 +35,7 @@
 #include <pios.h>
 
 // Gyroscope addresses
+#define L3G_WHO_I_AM_ADDR  0x0F
 #define L3G_CTRL_REG1_ADDR 0x20
 #define L3G_CTRL_REG2_ADDR 0x21
 #define L3G_CTRL_REG3_ADDR 0x22

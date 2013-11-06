@@ -129,12 +129,12 @@ static const struct pios_spi_cfg l3g4200d_spi_cfg = {
 	        .SPI_Mode              = SPI_Mode_Master,
 	        .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
 	        .SPI_DataSize          = SPI_DataSize_8b,
-	        .SPI_NSS                                   = SPI_NSS_Soft,
+	        .SPI_NSS               = SPI_NSS_Soft,
 	        .SPI_FirstBit          = SPI_FirstBit_MSB,
 	        .SPI_CRCPolynomial     = 7,
 	        .SPI_CPOL              = SPI_CPOL_Low,
 	        .SPI_CPHA              = SPI_CPHA_1Edge,
-	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8,
+	        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4,
 	    },
 	    .use_crc = false,
 	    .dma     = {
@@ -194,27 +194,27 @@ static const struct pios_spi_cfg l3g4200d_spi_cfg = {
 	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .miso                                          = {
 	        .gpio = GPIOB,
 	        .init = {
 	            .GPIO_Pin   = GPIO_Pin_14,
-	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .mosi                                          = {
 	        .gpio = GPIOB,
 	        .init = {
 	            .GPIO_Pin   = GPIO_Pin_15,
-	            .GPIO_Speed = GPIO_Speed_50MHz,
+	            .GPIO_Speed = GPIO_Speed_100MHz,
 	            .GPIO_Mode  = GPIO_Mode_AF,
 	            .GPIO_OType = GPIO_OType_PP,
-	            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+	            .GPIO_PuPd  = GPIO_PuPd_DOWN
 	        },
 	    },
 	    .slave_count                                   = 1,
@@ -226,7 +226,7 @@ static const struct pios_spi_cfg l3g4200d_spi_cfg = {
 	                .GPIO_Speed = GPIO_Speed_50MHz,
 	                .GPIO_Mode  = GPIO_Mode_OUT,
 	                .GPIO_OType = GPIO_OType_PP,
-	                .GPIO_PuPd  = GPIO_PuPd_UP
+	                .GPIO_PuPd  = GPIO_PuPd_NOPULL
 	            }
 	        }
 	    },
@@ -1257,24 +1257,24 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         .remap = GPIO_AF_TIM5,
     },
     // PWM pins on FlexiIO(receiver) port
-    {
-        // * 6: PB15 = SPI2 MOSI, TIM12 CH2
-
-        .timer = TIM12,
-        .timer_chan = TIM_Channel_2,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_15,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource15,
-        },
-        .remap = GPIO_AF_TIM12,
-    },
+//    {
+//        // * 6: PB15 = SPI2 MOSI, TIM12 CH2
+//
+//        .timer = TIM12,
+//        .timer_chan = TIM_Channel_2,
+//        .pin   = {
+//            .gpio = GPIOB,
+//            .init = {
+//                .GPIO_Pin   = GPIO_Pin_15,
+//                .GPIO_Speed = GPIO_Speed_2MHz,
+//                .GPIO_Mode  = GPIO_Mode_AF,
+//                .GPIO_OType = GPIO_OType_PP,
+//                .GPIO_PuPd  = GPIO_PuPd_UP
+//            },
+//            .pin_source     = GPIO_PinSource15,
+//        },
+//        .remap = GPIO_AF_TIM12,
+//    },
     {
         // *  7: PC6 = TIM8 CH1, USART6 TX
         .timer = TIM8,
@@ -1347,27 +1347,27 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         .remap = GPIO_AF_TIM8,
     },
 
-    {
-        // *  5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
-        .timer = TIM12,
-        .timer_chan = TIM_Channel_1,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_14,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource14,
-        },
-        .remap = GPIO_AF_TIM12,
-    },
+//    {
+//        // *  5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
+//        .timer = TIM12,
+//        .timer_chan = TIM_Channel_1,
+//        .pin   = {
+//            .gpio = GPIOB,
+//            .init = {
+//                .GPIO_Pin   = GPIO_Pin_14,
+//                .GPIO_Speed = GPIO_Speed_2MHz,
+//                .GPIO_Mode  = GPIO_Mode_AF,
+//                .GPIO_OType = GPIO_OType_PP,
+//                .GPIO_PuPd  = GPIO_PuPd_UP
+//            },
+//            .pin_source     = GPIO_PinSource14,
+//        },
+//        .remap = GPIO_AF_TIM12,
+//    },
 };
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT        6
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM 11
-#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     12
+#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     10
 
 const struct pios_servo_cfg pios_servo_cfg_out = {
     .tim_oc_init          = {
@@ -1422,38 +1422,38 @@ const struct pios_servo_cfg pios_servo_cfg_out_in = {
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM)
 #include <pios_pwm_priv.h>
 static const struct pios_tim_channel pios_tim_rcvrport_all_channels[] = {
-    {
-        .timer = TIM12,
-        .timer_chan = TIM_Channel_1,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_14,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource14,
-        },
-        .remap = GPIO_AF_TIM12,
-    },
-    {
-        .timer = TIM12,
-        .timer_chan = TIM_Channel_2,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_15,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource15,
-        },
-        .remap = GPIO_AF_TIM12,
-    },
+//    {
+//        .timer = TIM12,
+//        .timer_chan = TIM_Channel_1,
+//        .pin   = {
+//            .gpio = GPIOB,
+//            .init = {
+//                .GPIO_Pin   = GPIO_Pin_14,
+//                .GPIO_Speed = GPIO_Speed_2MHz,
+//                .GPIO_Mode  = GPIO_Mode_AF,
+//                .GPIO_OType = GPIO_OType_PP,
+//                .GPIO_PuPd  = GPIO_PuPd_UP
+//            },
+//            .pin_source     = GPIO_PinSource14,
+//        },
+//        .remap = GPIO_AF_TIM12,
+//    },
+//    {
+//        .timer = TIM12,
+//        .timer_chan = TIM_Channel_2,
+//        .pin   = {
+//            .gpio = GPIOB,
+//            .init = {
+//                .GPIO_Pin   = GPIO_Pin_15,
+//                .GPIO_Speed = GPIO_Speed_2MHz,
+//                .GPIO_Mode  = GPIO_Mode_AF,
+//                .GPIO_OType = GPIO_OType_PP,
+//                .GPIO_PuPd  = GPIO_PuPd_UP
+//            },
+//            .pin_source     = GPIO_PinSource15,
+//        },
+//        .remap = GPIO_AF_TIM12,
+//    },
     {
         .timer = TIM8,
         .timer_chan = TIM_Channel_1,

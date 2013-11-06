@@ -182,7 +182,7 @@ void PIOS_L3G4200D_ObtainData()
 	data_ready = false;
 
 	// wait for new data available.
-	//while((PIOS_L3G4200D_GetReg(L3G_STATUS_REG_ADDR) & L3G_STATUS_REG_XYZDA) == 0);
+	while((PIOS_L3G4200D_GetReg(L3G_STATUS_REG_ADDR) & L3G_STATUS_REG_XYZDA) == 0);
 
 	// temp coord
 	uint32_t tempRaw = PIOS_L3G4200D_GetReg(L3G_OUT_TEMP_ADDR);
@@ -231,6 +231,8 @@ uint32_t PIOS_L3G4200D_GetUpdateGyroTimeoutuS()
 
 int32_t PIOS_L3G4200D_GyroTest()
 {
+	uint32_t dat = PIOS_L3G4200D_GetReg(L3G_WHO_I_AM_ADDR);
+	PIOS_Assert(dat == 0xD3);
 	return 0;
 }
 
