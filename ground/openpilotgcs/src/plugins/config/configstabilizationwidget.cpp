@@ -202,13 +202,13 @@ void ConfigStabilizationWidget::onBoardConnected()
     Q_ASSERT(utilMngr);
     boardModel = utilMngr->getBoardModel();
     // If Revolution board enable misc tab, otherwise disable it
-    ui->AltitudeHold->setEnabled((boardModel & 0xff00) == 0x0900);
+    ui->AltitudeHold->setEnabled((boardModel & 0xff00) == 0x0900 || (boardModel == 0x1004));
 }
 
 bool ConfigStabilizationWidget::shouldObjectBeSaved(UAVObject *object)
 {
     // AltitudeHoldSettings should only be saved for Revolution board to avoid error.
-    if ((boardModel & 0xff00) != 0x0900) {
+    if ((boardModel & 0xff00) != 0x0900 && boardModel != 0x1004) {
         return dynamic_cast<AltitudeHoldSettings *>(object) == 0;
     } else {
         return true;

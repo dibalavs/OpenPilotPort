@@ -86,6 +86,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_REVO:
             elementsToShow << "controller-revo";
             break;
+        case VehicleConfigurationSource::CONTROLLER_BRAINYFLY:
+			elementsToShow << "controller-brainyfly";
+			break;
         case VehicleConfigurationSource::CONTROLLER_OPLINK:
         default:
             elementsToShow << "controller-cc";

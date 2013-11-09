@@ -238,6 +238,7 @@ void ConfigPipXtremeWidget::updateSettings(UAVObject *object)
         if (board_type_field) {
             switch (board_type_field->getValue().toInt()) {
             case 0x09: // Revolution
+            case 0x10: // BrainyFly
                 m_oplink->MainPort->setVisible(false);
                 m_oplink->MainPortLabel->setVisible(false);
                 m_oplink->FlexiPort->setVisible(false);

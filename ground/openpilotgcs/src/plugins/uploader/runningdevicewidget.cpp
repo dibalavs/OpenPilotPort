@@ -88,6 +88,9 @@ void RunningDeviceWidget::populate()
     case 0x0903:
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
+    case 0x1004:
+        devicePic.load(":/uploader/images/gcs-board-revo.png");
+        break;
     default:
         // Clear
         devicePic.load("");

@@ -93,6 +93,7 @@ enum eBoardType {
     eBoardPip     = 3,
     eBoardCC = 4,
     eBoardRevo    = 9,
+    eBoardBrainyFly    = 10,
 };
 
 struct device {

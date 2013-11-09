@@ -212,8 +212,9 @@ void ConfigGadgetWidget::onAutopilotConnect()
             qwd  = new ConfigCCHWWidget(this);
             ftw->removeTab(ConfigGadgetWidget::hardware);
             ftw->insertTab(ConfigGadgetWidget::hardware, qwd, *icon, QString("Hardware"));
-        } else if ((board & 0xff00) == 0x0900) {
+        } else if ((board & 0xff00) == 0x0900 || (board == 0x1004)) {
             // Revolution family
+        	// BrainyFly board
 
             QIcon *icon  = new QIcon();
             icon->addFile(":/configgadget/images/ins_normal.png", QSize(), QIcon::Normal, QIcon::Off);

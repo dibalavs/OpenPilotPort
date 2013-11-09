@@ -1077,6 +1077,7 @@ int DFUObject::receiveData(void *data, int size)
 #define BOARD_ID_PIP  3
 #define BOARD_ID_CC   4
 #define BOARD_ID_REVO 9
+#define BOARD_ID_BRAINYFLY 10
 
 /**
    Gets the type of board connected
@@ -1104,6 +1105,9 @@ OP_DFU::eBoardType DFUObject::GetBoardType(int boardNum)
         break;
     case BOARD_ID_REVO: // Revo board
         brdType = eBoardRevo;
+        break;
+    case BOARD_ID_BRAINYFLY: // Brainyfly board
+        brdType = eBoardBrainyFly;
         break;
     }
     return brdType;

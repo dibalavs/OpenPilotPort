@@ -328,7 +328,7 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
             ui->cb_outputRate2->setEnabled(true);
             ui->cb_outputRate3->setEnabled(true);
             ui->cb_outputRate4->setEnabled(true);
-        } else if ((board & 0xff00) == 0x0900) {
+        } else if ((board & 0xff00) == 0x0900 || (board == 0x1004)) {
             // Revolution family of boards 6 timer banks
             ui->chBank1->setText("1-2");
             ui->chBank2->setText("3");

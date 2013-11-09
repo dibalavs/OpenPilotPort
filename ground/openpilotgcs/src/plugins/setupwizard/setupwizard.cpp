@@ -83,6 +83,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC:
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
+        case CONTROLLER_BRAINYFLY:
             return PAGE_INPUT;
 
         case CONTROLLER_OPLINK:
@@ -139,6 +140,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC:
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
+        case CONTROLLER_BRAINYFLY:
             return PAGE_BIAS_CALIBRATION;
 
         default:
@@ -170,6 +172,9 @@ QString SetupWizard::getSummaryText()
         break;
     case CONTROLLER_REVO:
         summary.append(tr("OpenPilot Revolution"));
+        break;
+    case CONTROLLER_BRAINYFLY:
+        summary.append(tr("BrainyFly board"));
         break;
     case CONTROLLER_OPLINK:
         summary.append(tr("OpenPilot OPLink Radio Modem"));

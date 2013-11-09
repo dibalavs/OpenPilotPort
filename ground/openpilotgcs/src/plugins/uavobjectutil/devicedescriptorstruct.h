@@ -51,6 +51,11 @@ public:
             return QString("Revolution");
 
             break;
+		case 0x1004:
+            // Brainy fly
+            return QString("BrainyFly");
+
+            break;
         default:
             return QString("");
 

@@ -145,6 +145,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         }
         break;
     case VehicleConfigurationSource::CONTROLLER_REVO:
+    case VehicleConfigurationSource::CONTROLLER_BRAINYFLY:
         // Reset all ports
         data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
 
@@ -364,6 +365,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
             break;
         }
         case VehicleConfigurationSource::CONTROLLER_REVO:
+        case VehicleConfigurationSource::CONTROLLER_BRAINYFLY:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);
