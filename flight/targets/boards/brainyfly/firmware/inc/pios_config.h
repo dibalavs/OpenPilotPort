@@ -36,7 +36,7 @@
  * details.
  */
 
-/* #define PIOS_INCLUDE_DEBUG_CONSOLE */
+//#define PIOS_INCLUDE_DEBUG_CONSOLE
 /* #define DEBUG_LEVEL 0 */
 /* #define PIOS_ENABLE_DEBUG_PINS */
 
@@ -66,9 +66,9 @@
 //#define PIOS_INCLUDE_WDG
 
 /* PIOS USB functions */
-#define PIOS_INCLUDE_USB
-#define PIOS_INCLUDE_USB_HID
-#define PIOS_INCLUDE_USB_CDC
+//#define PIOS_INCLUDE_USB
+//#define PIOS_INCLUDE_USB_HID
+//#define PIOS_INCLUDE_USB_CDC
 /* #define PIOS_INCLUDE_USB_RCTX */
 
 /* PIOS sensor interfaces */
@@ -95,7 +95,7 @@
 #define PIOS_INCLUDE_PPM
 /* #define PIOS_INCLUDE_PPM_FLEXI */
 //#define PIOS_INCLUDE_I2C_FLEXI
-#define PIOS_INCLUDE_DSM
+//#define PIOS_INCLUDE_DSM
 //#define PIOS_INCLUDE_SBUS
 #define PIOS_INCLUDE_GCSRCVR
 //#define PIOS_INCLUDE_OPLINKRCVR
@@ -105,7 +105,7 @@
 
 /* PIOS common peripherals */
 #define PIOS_INCLUDE_LED
-//#define PIOS_INCLUDE_IAP
+#define PIOS_INCLUDE_IAP
 #define PIOS_INCLUDE_SERVO
 /* #define PIOS_INCLUDE_I2C_ESC */
 /* #define PIOS_INCLUDE_OVERO */

@@ -615,8 +615,8 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
  * MAIN USART
  */
 static const struct pios_usart_cfg pios_usart_main_cfg = {
-    .regs  = USART1,
-    .remap = GPIO_AF_USART1,
+    .regs  = USART3,
+    .remap = GPIO_AF_USART3,
     .init  = {
         .USART_BaudRate   = 57600,
         .USART_WordLength = USART_WordLength_8b,
@@ -627,38 +627,39 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
     },
     .irq                                       = {
         .init                                  = {
-            .NVIC_IRQChannel    = USART1_IRQn,
+            .NVIC_IRQChannel    = USART3_IRQn,
             .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
             .NVIC_IRQChannelSubPriority        = 0,
             .NVIC_IRQChannelCmd = ENABLE,
         },
     },
     .rx                                        = {
-        .gpio = GPIOA,
+        .gpio = GPIOD,
         .init = {
-            .GPIO_Pin   = GPIO_Pin_10,
-            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Pin   = GPIO_Pin_9,
+            .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL
         },
     },
     .tx                                        = {
-        .gpio = GPIOA,
+        .gpio = GPIOD,
         .init = {
-            .GPIO_Pin   = GPIO_Pin_9,
-            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Pin   = GPIO_Pin_8,
+            .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL
         },
     },
 };
 #endif /* PIOS_INCLUDE_COM_TELEM */
 
+#include "pios_dsm_priv.h"
+
 #ifdef PIOS_INCLUDE_DSM
 
-#include "pios_dsm_priv.h"
 static const struct pios_usart_cfg pios_usart_dsm_main_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_USART1,
@@ -809,7 +810,7 @@ static const struct pios_usart_cfg pios_usart_hkosd_main_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_USART1,
     .init  = {
-        .USART_BaudRate   = 57600,
+        .USART_BaudRate   = 115200,
         .USART_WordLength = USART_WordLength_8b,
         .USART_Parity     = USART_Parity_No,
         .USART_StopBits   = USART_StopBits_1,
@@ -850,7 +851,7 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
     .regs  = USART3,
     .remap = GPIO_AF_USART3,
     .init  = {
-        .USART_BaudRate   = 57600,
+        .USART_BaudRate   = 115200,
         .USART_WordLength = USART_WordLength_8b,
         .USART_Parity     = USART_Parity_No,
         .USART_StopBits   = USART_StopBits_1,

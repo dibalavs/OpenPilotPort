@@ -297,6 +297,7 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
     }
 }
 
+#ifdef PIOS_INCLUDE_DSM
 static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm_cfg, const struct pios_dsm_cfg *pios_dsm_cfg,
                                      const struct pios_com_driver *usart_com_driver, enum pios_dsm_proto *proto,
                                      ManualControlSettingsChannelGroupsOptions channelgroup, uint8_t *bind)
@@ -319,6 +320,7 @@ static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm
     }
     pios_rcvr_group_map[channelgroup] = pios_dsm_rcvr_id;
 }
+#endif // PIOS_INCLUDE_DSM
 
 static void PIOS_Board_configure_pwm(const struct pios_pwm_cfg *pwm_cfg)
 {
@@ -637,6 +639,7 @@ void PIOS_Board_Init(void)
     /* Configure main USART port */
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
+   // hwsettings_mainport = HWSETTINGS_RM_MAINPORT_COMBRIDGE; // TODO remove
     switch (hwsettings_mainport) {
     case HWSETTINGS_RM_MAINPORT_DISABLED:
         break;
@@ -667,6 +670,8 @@ void PIOS_Board_Init(void)
         }
 #endif
         break;
+
+#ifdef PIOS_INCLUDE_DSM
     case HWSETTINGS_RM_MAINPORT_DSM2:
     case HWSETTINGS_RM_MAINPORT_DSMX10BIT:
     case HWSETTINGS_RM_MAINPORT_DSMX11BIT:
@@ -695,6 +700,8 @@ void PIOS_Board_Init(void)
                                  &pios_usart_com_driver, &proto, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
     }
     break;
+#endif // PIOS_INCLUDE_DSM
+
     case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
@@ -742,6 +749,8 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
         break;
 #endif
+
+#ifdef PIOS_INCLUDE_DSM
     case HWSETTINGS_RM_FLEXIPORT_DSM2:
     case HWSETTINGS_RM_FLEXIPORT_DSMX10BIT:
     case HWSETTINGS_RM_FLEXIPORT_DSMX11BIT:
@@ -766,6 +775,8 @@ void PIOS_Board_Init(void)
                                  &pios_usart_com_driver, &proto, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT, &hwsettings_DSMxBind);
     }
     break;
+#endif // PIOS_INCLUDE_DSM
+
     case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
