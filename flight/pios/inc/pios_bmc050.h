@@ -46,6 +46,7 @@
 #define BMC_ACCEL_POWERMODE_ADDR 0x11
 #define BMC_ACCEL_CONFIG_ADDR    0x13
 #define BMC_ACCEL_RESET_ADDR     0x14
+#define BMC_ACCEL_SELF_TEST_ADDR 0x32
 
 // Magnetometer addresses
 #define BMC_MAG_CHIPID_ADDR      0x40
@@ -58,13 +59,20 @@
 #define BMC_MAG_REPETITION_XY     0x51
 #define BMC_MAG_REPETITION_Z      0x52
 
+enum { BMC_ACCEL_SELF_TEST_POS_SIGN = (0 << 2),
+	   BMC_ACCEL_SELF_TEST_NEG_SIGN = (1 << 2),
+	   BMC_ACCEL_SELF_TEST_DISABLED = 0,
+	   BMC_ACCEL_SELF_TEST_X_AXIS   = 1,
+	   BMC_ACCEL_SELF_TEST_Y_AXIS   = 2,
+	   BMC_ACCEL_SELF_TEST_Z_AXIS   = 3 };
+
+enum { BMC_MAG_DATA_READY_BIT = 0x01 };
+
 enum { BMC_ACCEL_RESET_VAL = 0xB6 };
 
 enum { BMC_MAG_RESET_VAL = 0x83 };
 
 enum { BMC_ACCEL_DATA_READY_BIT = 0x01 };
-
-enum { BMC_MAG_DATA_READY_BIT = 0x01 };
 
 /* Accel range  */
 enum bmc050_accel_range { BMC_ACCEL_RANGE_2G   = 0x03,

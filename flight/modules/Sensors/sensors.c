@@ -167,7 +167,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     portTickType lastSysTime;
     uint32_t accel_samples = 0;
     uint32_t gyro_samples  = 0;
-    int32_t accel_accum[3] = { 0, 0, 0 };
+    float accel_accum[3] = { 0, 0, 0 };
     int32_t gyro_accum[3]  = { 0, 0, 0 };
     float gyro_scaling     = 0;
     float accel_scaling    = 0;

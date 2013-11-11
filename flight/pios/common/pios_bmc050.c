@@ -32,6 +32,7 @@
 
 #ifdef PIOS_INCLUDE_BMC050
 
+#define GRAVITY_CONST 9.81f
 /* Global Variables */
 
 /* Local Types */
@@ -267,11 +268,21 @@ static float PIOS_BMC050_RangeToValue()
 	}
 }
 
-const float mg_per_lsb = 1.953125f;
+const float g_per_lsb = GRAVITY_CONST / 512.0f;
 const float temp_per_lsb = 0.5f;
 void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_accel_data *data)
 {
-	const float coeff_g = PIOS_BMC050_RangeToValue() * mg_per_lsb * 0.001f;
+	// check sign. we may have negative acceleration.
+	if (raw->accel_x & 0x0200)
+		raw->accel_x = raw->accel_x - 0x03ff;
+
+	if (raw->accel_y & 0x0200)
+		raw->accel_y = raw->accel_y - 0x03ff;
+
+	if (raw->accel_z & 0x0200)
+		raw->accel_z = raw->accel_z - 0x03ff;
+
+	const float coeff_g = PIOS_BMC050_RangeToValue() * g_per_lsb;
 	data->accel_x = coeff_g * raw->accel_x;
 	data->accel_y = coeff_g * raw->accel_y;
 	data->accel_z = coeff_g * raw->accel_z;
@@ -487,14 +498,69 @@ uint32_t PIOS_BMC050_GetUpdateAccelTimeoutuS()
 	return defaultTimeout * 1000;
 }
 
+void PIOS_BMC050_AccelObtainTestData(int32_t sign, struct pios_bmc050_accel_data* out)
+{
+	struct pios_bmc050_raw_data raw;
+
+	int32_t rx = 0;
+	PIOS_BMC050_SetReg(BMC_ACCEL_SELF_TEST_ADDR, sign | BMC_ACCEL_SELF_TEST_X_AXIS);
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateAccelTimeoutuS());
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_X_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
+	raw.accel_x = (PIOS_BMC050_GetReg(BMC_ACCEL_X_LSB_ADDR + 1) << 2) | (rx >> 6);
+
+	PIOS_BMC050_SetReg(BMC_ACCEL_SELF_TEST_ADDR, sign | BMC_ACCEL_SELF_TEST_Y_AXIS);
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateAccelTimeoutuS());
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Y_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
+	raw.accel_y = (PIOS_BMC050_GetReg(BMC_ACCEL_Y_LSB_ADDR + 1) << 2) | (rx >> 6);
+
+	PIOS_BMC050_SetReg(BMC_ACCEL_SELF_TEST_ADDR, sign | BMC_ACCEL_SELF_TEST_Z_AXIS);
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateAccelTimeoutuS());
+	while(((rx = PIOS_BMC050_GetReg(BMC_ACCEL_Z_LSB_ADDR)) & BMC_ACCEL_DATA_READY_BIT) == 0);
+	raw.accel_z = (PIOS_BMC050_GetReg(BMC_ACCEL_Z_LSB_ADDR + 1) << 2) | (rx >> 6);
+
+	NormalizeAccelData(&raw, out);
+}
+
 int32_t PIOS_BMC050_AccelTest()
 {
 	PIOS_BMC050_SetMag();
 	PIOS_BMC050_ReleaseBus();
 
+	// Check chipID
 	PIOS_BMC050_SetAccel();
 	uint32_t rx = PIOS_BMC050_GetReg(BMC_ACCEL_CHIPID_ADDR);
 	PIOS_Assert(rx == 0x03);
+
+	// accel sensor self-test
+
+	struct pios_bmc050_cfg testCfg;
+	testCfg.accel_range = BMC_ACCEL_RANGE_2G;
+	testCfg.accel_bandwidth = devAccel.cfg->accel_bandwidth;
+	const struct pios_bmc050_cfg* prev_cfg = devAccel.cfg;
+	devAccel.cfg = &testCfg;
+	PIOS_BMC050_SetReg(BMC_ACCEL_G_RANGE_ADDR, BMC_ACCEL_RANGE_2G);
+
+	//Part 1 positive sign test
+	struct pios_bmc050_accel_data positive;
+	PIOS_BMC050_AccelObtainTestData(BMC_ACCEL_SELF_TEST_POS_SIGN, &positive);
+
+	struct pios_bmc050_accel_data negative;
+	PIOS_BMC050_AccelObtainTestData(BMC_ACCEL_SELF_TEST_NEG_SIGN, &negative);
+
+	// Check if they are working
+
+	const float dx = -(negative.accel_x - positive.accel_x);
+	const float dy = -(negative.accel_y - positive.accel_y);
+	const float dz = -(negative.accel_z - positive.accel_z);
+
+	PIOS_Assert(dx >= 0.8f * GRAVITY_CONST);
+	PIOS_Assert(dy >= 0.8f * GRAVITY_CONST);
+	PIOS_Assert(dz >= 0.4f * GRAVITY_CONST);
+
+	PIOS_BMC050_SetReg(BMC_ACCEL_SELF_TEST_ADDR, BMC_ACCEL_SELF_TEST_DISABLED);
+	devAccel.cfg = prev_cfg;
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateAccelTimeoutuS());
+	PIOS_BMC050_ConfigAccel(devAccel.cfg);
 
 	return 0;
 }
