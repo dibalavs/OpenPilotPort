@@ -32,7 +32,9 @@
 
 #ifdef PIOS_INCLUDE_BMC050
 
-#define GRAVITY_CONST 9.81f
+const static float GRAVITY_CONST = 9.81f;
+const static float TEMP_OFFSET = -7.0f;
+#de
 /* Global Variables */
 
 /* Local Types */
@@ -286,7 +288,7 @@ void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_acc
 	data->accel_x = coeff_g * raw->accel_x;
 	data->accel_y = coeff_g * raw->accel_y;
 	data->accel_z = coeff_g * raw->accel_z;
-	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f);
+	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f) + TEMP_OFFSET;
 
 	// TODO do temperature compensation.
 }
@@ -299,7 +301,7 @@ void NormalizeMagData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_mag_d
 	data->mag_y = raw->mag_y * mt_per_lsb_xy;
 	data->mag_z = raw->mag_z * mt_per_lsb_z;
 
-	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f);
+	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f) + TEMP_OFFSET;
 	// TODO add temperature compensation.
 }
 
@@ -386,7 +388,7 @@ int32_t PIOS_BMC050_ReadMag(struct pios_bmc050_mag_data *data)
 
 float PIOS_BMC050_GetAccelScale()
 {
-	return 1;
+	return 1.1f;
 }
 
 float PIOS_BMC050_GetMagScale()

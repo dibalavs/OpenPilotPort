@@ -200,7 +200,7 @@ static const struct pios_bmc050_cfg bmc050_cfg = {
 		.mag_rep_z = 83,
 		.mag_odr = BMC_MAG_ODR_20HZ,
 
-		.accel_bandwidth = BMC_ACCEL_BW_31HZ,
+		.accel_bandwidth = BMC_ACCEL_BW_16HZ,
 		.accel_range = BMC_ACCEL_RANGE_8G
 };
 #endif //PIOS_INCLUDE_BMC050
