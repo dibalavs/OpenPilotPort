@@ -32,9 +32,36 @@
 
 #ifdef PIOS_INCLUDE_BMC050
 
-const static float GRAVITY_CONST = 9.81f;
-const static float TEMP_OFFSET = -7.0f;
-#de
+// Accelerometer addresses
+#define BMC_ACCEL_CHIPID_ADDR    0x00
+#define BMC_ACCEL_TEMP_ADDR      0x08
+#define BMC_ACCEL_X_LSB_ADDR     0x02
+#define BMC_ACCEL_Y_LSB_ADDR     0x04
+#define BMC_ACCEL_Z_LSB_ADDR     0x06
+#define BMC_ACCEL_ORIENT_ADDR    0x0C
+#define BMC_ACCEL_G_RANGE_ADDR   0x0F
+#define BMC_ACCEL_BANDWIDTH_ADDR 0x10
+#define BMC_ACCEL_POWERMODE_ADDR 0x11
+#define BMC_ACCEL_CONFIG_ADDR    0x13
+#define BMC_ACCEL_RESET_ADDR     0x14
+#define BMC_ACCEL_SELF_TEST_ADDR 0x32
+
+// Magnetometer addresses
+#define BMC_MAG_CHIPID_ADDR      0x40
+#define BMC_MAG_X_LSB_ADDR       0x42
+#define BMC_MAG_Y_LSB_ADDR       0x44
+#define BMC_MAG_Z_LSB_ADDR       0x46
+#define BMC_MAG_HALL_RES_LSB_ADDR      0x48 /*and Data ready bit*/
+#define BMC_MAG_POWER_ADDR             0x4B /*power, soft reset*/
+#define BMC_MAG_OP_MODE_BANDWIDTH_ADDR 0x4C
+#define BMC_MAG_AXIS_SET_ADDR 		   0x4E
+#define BMC_MAG_REPETITION_XY_ADDR     0x51
+#define BMC_MAG_REPETITION_Z_ADDR      0x52
+
+
+#define GRAVITY_CONST 9.81f
+#define TEMP_OFFSET  (-7.0f)
+
 /* Global Variables */
 
 /* Local Types */
@@ -234,16 +261,16 @@ static int32_t PIOS_BMC050_ConfigMag(const struct pios_bmc050_cfg *cfg)
 	PIOS_BMC050_SetMag();
 
 	// reset
-	PIOS_BMC050_SetReg(BMC_MAG_POWER, BMC_MAG_RESET_VAL);
+	PIOS_BMC050_SetReg(BMC_MAG_POWER_ADDR, BMC_MAG_RESET_VAL);
 	PIOS_DELAY_WaitmS(100);
-	PIOS_BMC050_SetReg(BMC_MAG_POWER, 1);
+	PIOS_BMC050_SetReg(BMC_MAG_POWER_ADDR, 1);
 
 	// ODR 20hz, normal operation mode
-	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH, (cfg->mag_odr) | BMC_MAG_OP_NORMAL);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (cfg->mag_odr) | BMC_MAG_OP_NORMAL);
 
 	// set repetition;
-	PIOS_BMC050_SetReg(BMC_MAG_REPETITION_XY, (cfg->mag_rep_xy - 1) / 2);
-	PIOS_BMC050_SetReg(BMC_MAG_REPETITION_Z, cfg->mag_rep_z - 1);
+	PIOS_BMC050_SetReg(BMC_MAG_REPETITION_XY_ADDR, (cfg->mag_rep_xy - 1) / 2);
+	PIOS_BMC050_SetReg(BMC_MAG_REPETITION_Z_ADDR, cfg->mag_rep_z - 1);
 
 	return 0;
 }
@@ -573,10 +600,66 @@ int32_t PIOS_BMC050_MagTest()
 	PIOS_BMC050_ReleaseBus();
 
 	PIOS_BMC050_SetMag();
-	PIOS_BMC050_SetReg(BMC_MAG_POWER, 1);
+
+	// check chip id.
+	PIOS_BMC050_SetReg(BMC_MAG_POWER_ADDR, 1);
 	uint32_t rx = PIOS_BMC050_GetReg(BMC_MAG_CHIPID_ADDR);
 	PIOS_Assert(rx == 0x32);
 
+	// normal self-test
+
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_SLEEP);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_SLEEP | BMC_MAG_OP_SELF_TEST);
+	while(((PIOS_BMC050_GetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR)) & BMC_MAG_OP_SELF_TEST) == BMC_MAG_OP_SELF_TEST);
+
+	rx = PIOS_BMC050_GetReg(BMC_MAG_X_LSB_ADDR);
+	PIOS_Assert((rx & BMC_MAG_SELF_TEST_OK_BIT) == BMC_MAG_SELF_TEST_OK_BIT);
+
+	rx = PIOS_BMC050_GetReg(BMC_MAG_Y_LSB_ADDR);
+	PIOS_Assert((rx & BMC_MAG_SELF_TEST_OK_BIT) == BMC_MAG_SELF_TEST_OK_BIT);
+
+	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
+	PIOS_Assert((rx & BMC_MAG_SELF_TEST_OK_BIT) == BMC_MAG_SELF_TEST_OK_BIT);
+
+	// advanced self-test
+
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_SLEEP);
+	PIOS_BMC050_SetReg(BMC_MAG_AXIS_SET_ADDR, BMC_MAG_AXIS_SET_X_DISABLED | BMC_MAG_AXIS_SET_Y_DISABLED);
+
+	// positive test
+	struct pios_bmc050_raw_data pos_raw;
+	struct pios_bmc050_mag_data pos_data;
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_POS);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_FORCED | BMC_MAG_OP_ADVANCED_SELF_TEST_POS);
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateMagTimeoutuS());
+	while(((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT )== 0);
+	pos_raw.mag_hall_resistance = (PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR + 1) << 6) | (rx >> 2);
+	// z coord raw
+	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
+	pos_raw.mag_z = (PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1) << 7) | (rx >> 1);
+
+	// negative test
+	struct pios_bmc050_raw_data neg_raw;
+	struct pios_bmc050_mag_data neg_data;
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_FORCED | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG);
+	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateMagTimeoutuS());
+	while(((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT )== 0);
+	neg_raw.mag_hall_resistance = (PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR + 1) << 6) | (rx >> 2);
+	// z coord raw
+	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
+	neg_raw.mag_z = (PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1) << 7) | (rx >> 1);
+
+	NormalizeMagData(&pos_raw, &pos_data);
+	NormalizeMagData(&neg_raw, &neg_data);
+
+	float dz = fabsf(pos_data.mag_z - neg_data.mag_z);
+
+	// check if value around 200uT
+	PIOS_Assert(dz > 0.150f);
+	PIOS_Assert(dz < 0.250f);
+
+	PIOS_BMC050_ConfigMag(devMag.cfg);
 	return 0;
 }
 

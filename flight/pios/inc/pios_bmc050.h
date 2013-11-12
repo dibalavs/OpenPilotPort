@@ -34,31 +34,6 @@
 
 #include <pios.h>
 
-// Accelerometer addresses
-#define BMC_ACCEL_CHIPID_ADDR    0x00
-#define BMC_ACCEL_TEMP_ADDR      0x08
-#define BMC_ACCEL_X_LSB_ADDR     0x02
-#define BMC_ACCEL_Y_LSB_ADDR     0x04
-#define BMC_ACCEL_Z_LSB_ADDR     0x06
-#define BMC_ACCEL_ORIENT_ADDR    0x0C
-#define BMC_ACCEL_G_RANGE_ADDR   0x0F
-#define BMC_ACCEL_BANDWIDTH_ADDR 0x10
-#define BMC_ACCEL_POWERMODE_ADDR 0x11
-#define BMC_ACCEL_CONFIG_ADDR    0x13
-#define BMC_ACCEL_RESET_ADDR     0x14
-#define BMC_ACCEL_SELF_TEST_ADDR 0x32
-
-// Magnetometer addresses
-#define BMC_MAG_CHIPID_ADDR      0x40
-#define BMC_MAG_X_LSB_ADDR       0x42
-#define BMC_MAG_Y_LSB_ADDR       0x44
-#define BMC_MAG_Z_LSB_ADDR       0x46
-#define BMC_MAG_HALL_RES_LSB_ADDR 0x48 /*and Data ready bit*/
-#define BMC_MAG_POWER             0x4B /*power, soft reset*/
-#define BMC_MAG_OP_MODE_BANDWIDTH 0x4C
-#define BMC_MAG_REPETITION_XY     0x51
-#define BMC_MAG_REPETITION_Z      0x52
-
 enum { BMC_ACCEL_SELF_TEST_POS_SIGN = (0 << 2),
 	   BMC_ACCEL_SELF_TEST_NEG_SIGN = (1 << 2),
 	   BMC_ACCEL_SELF_TEST_DISABLED = 0,
@@ -69,6 +44,8 @@ enum { BMC_ACCEL_SELF_TEST_POS_SIGN = (0 << 2),
 enum { BMC_ACCEL_CONFIG_NO_FILTERING = 0x80 };
 
 enum { BMC_MAG_DATA_READY_BIT = 0x01 };
+
+enum { BMC_MAG_SELF_TEST_OK_BIT = 0x01 };
 
 enum { BMC_ACCEL_RESET_VAL = 0xB6 };
 
@@ -99,16 +76,24 @@ enum bmc050_mag_odr { BMC_MAG_ODR_2HZ = (0x01 << 3),
 					  BMC_MAG_ODR_15HZ = (0x04 << 3),
 					  BMC_MAG_ODR_20HZ = (0x05 << 3),
 					  BMC_MAG_ODR_25HZ = (0x06 << 3),
-					  BMC_MAG_ODR_30HZ = (0x07 << 3)
-};
+					  BMC_MAG_ODR_30HZ = (0x07 << 3) };
 
 enum bmc050_mag_operation_mode { BMC_MAG_OP_NORMAL   = 0x00,
 								 BMC_MAG_OP_FORCED   = 0x02,
-								 BMC_MAG_OP_SLEEP    = 0x06 };
+								 BMC_MAG_OP_SLEEP    = 0x06,
+								 BMC_MAG_OP_SELF_TEST = 0x01,
+								 BMC_MAG_OP_ADVANCED_SELF_TEST_NEG = 0x80,
+								 BMC_MAG_OP_ADVANCED_SELF_TEST_POS = 0xC0 };
+
+enum bmc050_mag_axis_set {  BMC_MAG_AXIS_SET_ALL_ENABLED = 0x00,
+							BMC_MAG_AXIS_SET_X_DISABLED =  (0x01 << 2),
+							BMC_MAG_AXIS_SET_Y_DISABLED =  (0x01 << 3),
+							BMC_MAG_AXIS_SET_Z_DISABLED =  (0x01 << 4) };
+
 struct pios_bmc050_accel_data {
-    float accel_x; // g
-    float accel_y; // g
-    float accel_z; // g
+    float accel_x; // m/s^2
+    float accel_y; // m/s^2
+    float accel_z; // m/s^2
     float accel_temperature; // C
 };
 
