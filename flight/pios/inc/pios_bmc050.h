@@ -100,9 +100,9 @@ struct pios_bmc050_accel_data {
 struct pios_bmc050_mag_data {
 	float accel_temperature; // C
     float mag_hall_resistance;
-    float mag_x; // mT
-	float mag_y; // mT
-	float mag_z; // mT
+    float mag_x; // uT
+	float mag_y; // uT
+	float mag_z; // uT
 };
 
 struct pios_bmc050_cfg {

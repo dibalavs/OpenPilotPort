@@ -198,7 +198,7 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
 static const struct pios_bmc050_cfg bmc050_cfg = {
 		.mag_rep_xy = 47,
 		.mag_rep_z = 83,
-		.mag_odr = BMC_MAG_ODR_20HZ,
+		.mag_odr = BMC_MAG_ODR_10HZ,
 
 		.accel_bandwidth = BMC_ACCEL_BW_16HZ,
 		.accel_range = BMC_ACCEL_RANGE_8G

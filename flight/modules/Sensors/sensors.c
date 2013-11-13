@@ -68,7 +68,7 @@
 #define STACK_SIZE_BYTES 1000
 #define TASK_PRIORITY    (tskIDLE_PRIORITY + 3)
 #define SENSOR_PERIOD    2
-
+#define uT_to_mGa 10
 // Private types
 
 
@@ -491,6 +491,9 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         	PIOS_BMC050_ObtainMagData();
         	struct pios_bmc050_mag_data mag_data;
         	PIOS_BMC050_ReadMag(&mag_data);
+        	mag_data.mag_x *= uT_to_mGa;
+        	mag_data.mag_y *= uT_to_mGa;
+        	mag_data.mag_z *= uT_to_mGa;
             float mags[3] = { mag_data.mag_y * mag_scale[0] - mag_bias[0],
                               mag_data.mag_x * mag_scale[1] - mag_bias[1],
                               -mag_data.mag_z * mag_scale[2] - mag_bias[2] };

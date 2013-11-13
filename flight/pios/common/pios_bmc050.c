@@ -58,9 +58,9 @@
 #define BMC_MAG_REPETITION_XY_ADDR     0x51
 #define BMC_MAG_REPETITION_Z_ADDR      0x52
 
-
 #define GRAVITY_CONST 9.81f
-#define TEMP_OFFSET  (-7.0f)
+#define TEMP_OFFSET  (-8.0f)
+#define BYTE_TO_SINT32(x) ((int32_t)((int8_t)(x)))
 
 /* Global Variables */
 
@@ -320,8 +320,8 @@ void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_acc
 	// TODO do temperature compensation.
 }
 
-const float mt_per_lsb_xy = 2000.0f / ((1 << 14) - 1);
-const float mt_per_lsb_z = 5000.0f / ((1 << 16) - 1);
+const float mt_per_lsb_xy = 0.3f; // 13 bit are set. +- 2000uT
+const float mt_per_lsb_z = 0.3f; // 15 bit are set. +- 5000uT
 void NormalizeMagData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_mag_data *data)
 {
 	data->mag_x = raw->mag_x * mt_per_lsb_xy;
@@ -380,15 +380,15 @@ void PIOS_BMC050_ObtainMagData()
 
 	// x coord raw
 	rx = PIOS_BMC050_GetReg(BMC_MAG_X_LSB_ADDR);
-	raw.mag_x = (PIOS_BMC050_GetReg(BMC_MAG_X_LSB_ADDR + 1) << 5) | (rx >> 3);
+	raw.mag_x = (BYTE_TO_SINT32(PIOS_BMC050_GetReg(BMC_MAG_X_LSB_ADDR + 1)) << 5) | (rx >> 3);
 
 	// y coord raw
 	rx = PIOS_BMC050_GetReg(BMC_MAG_Y_LSB_ADDR);
-	raw.mag_y = (PIOS_BMC050_GetReg(BMC_MAG_Y_LSB_ADDR + 1) << 5) | (rx >> 3);
+	raw.mag_y = (BYTE_TO_SINT32(PIOS_BMC050_GetReg(BMC_MAG_Y_LSB_ADDR + 1)) << 5) | (rx >> 3);
 
 	// z coord raw
 	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
-	raw.mag_z = (PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1) << 7) | (rx >> 1);
+	raw.mag_z = (BYTE_TO_SINT32(PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1)) << 7) | (rx >> 1);
 
 	NormalizeMagData(&raw, &mag_data);
 
@@ -624,41 +624,46 @@ int32_t PIOS_BMC050_MagTest()
 	// advanced self-test
 
 	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_SLEEP);
+	PIOS_BMC050_SetReg(BMC_MAG_REPETITION_Z_ADDR, 4);
 	PIOS_BMC050_SetReg(BMC_MAG_AXIS_SET_ADDR, BMC_MAG_AXIS_SET_X_DISABLED | BMC_MAG_AXIS_SET_Y_DISABLED);
 
 	// positive test
 	struct pios_bmc050_raw_data pos_raw;
 	struct pios_bmc050_mag_data pos_data;
-	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_POS);
-	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_FORCED | BMC_MAG_OP_ADVANCED_SELF_TEST_POS);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_POS | BMC_MAG_OP_SLEEP);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_POS | BMC_MAG_OP_FORCED);
 	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateMagTimeoutuS());
 	while(((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT )== 0);
 	pos_raw.mag_hall_resistance = (PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR + 1) << 6) | (rx >> 2);
 	// z coord raw
+	int32_t rxh = 0;
 	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
-	pos_raw.mag_z = (PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1) << 7) | (rx >> 1);
+	rxh = BYTE_TO_SINT32(PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1));
+	pos_raw.mag_z = (rxh << 7) | (rx >> 1);
 
 	// negative test
 	struct pios_bmc050_raw_data neg_raw;
 	struct pios_bmc050_mag_data neg_data;
-	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG);
-	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_FORCED | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG);
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG );
+	PIOS_BMC050_SetReg(BMC_MAG_OP_MODE_BANDWIDTH_ADDR, (devMag.cfg->mag_odr) | BMC_MAG_OP_ADVANCED_SELF_TEST_NEG | BMC_MAG_OP_FORCED);
 	PIOS_DELAY_WaituS(PIOS_BMC050_GetUpdateMagTimeoutuS());
 	while(((rx = PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR)) & BMC_MAG_DATA_READY_BIT )== 0);
 	neg_raw.mag_hall_resistance = (PIOS_BMC050_GetReg(BMC_MAG_HALL_RES_LSB_ADDR + 1) << 6) | (rx >> 2);
 	// z coord raw
 	rx = PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR);
-	neg_raw.mag_z = (PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1) << 7) | (rx >> 1);
+	rxh = BYTE_TO_SINT32(PIOS_BMC050_GetReg(BMC_MAG_Z_LSB_ADDR + 1));
+	neg_raw.mag_z = (rxh << 7) | (rx >> 1);
 
 	NormalizeMagData(&pos_raw, &pos_data);
 	NormalizeMagData(&neg_raw, &neg_data);
 
-	float dz = fabsf(pos_data.mag_z - neg_data.mag_z);
+	const float dz = fabsf(pos_data.mag_z - neg_data.mag_z);
 
 	// check if value around 200uT
-	PIOS_Assert(dz > 0.150f);
-	PIOS_Assert(dz < 0.250f);
+	PIOS_Assert(dz > 140.0f);
+	PIOS_Assert(dz < 250.0f);
 
+	PIOS_BMC050_SetReg(BMC_MAG_AXIS_SET_ADDR, BMC_MAG_AXIS_SET_ALL_ENABLED);
 	PIOS_BMC050_ConfigMag(devMag.cfg);
 	return 0;
 }
