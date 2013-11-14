@@ -62,6 +62,13 @@
 #define TEMP_OFFSET  (-8.0f)
 #define BYTE_TO_SINT32(x) ((int32_t)((int8_t)(x)))
 
+// magnetometer parameters (uT)
+const float mt_per_lsb_xy = 0.3f; // 13 bit are set. +- 1000uT
+const float mt_per_lsb_z = 0.3f; // 15 bit are set. +- 2500uT
+const float mag_offset_compensation_x = -6.0f; // uT
+const float mag_offset_compensation_y = 0.0f; // uT
+const float mag_offset_compensation_z = -18.0f; // uT
+
 /* Global Variables */
 
 /* Local Types */
@@ -320,13 +327,11 @@ void NormalizeAccelData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_acc
 	// TODO do temperature compensation.
 }
 
-const float mt_per_lsb_xy = 0.3f; // 13 bit are set. +- 2000uT
-const float mt_per_lsb_z = 0.3f; // 15 bit are set. +- 5000uT
 void NormalizeMagData(struct pios_bmc050_raw_data *raw, struct pios_bmc050_mag_data *data)
 {
-	data->mag_x = raw->mag_x * mt_per_lsb_xy;
-	data->mag_y = raw->mag_y * mt_per_lsb_xy;
-	data->mag_z = raw->mag_z * mt_per_lsb_z;
+	data->mag_x = raw->mag_x * mt_per_lsb_xy + mag_offset_compensation_x;
+	data->mag_y = raw->mag_y * mt_per_lsb_xy + mag_offset_compensation_y;
+	data->mag_z = raw->mag_z * mt_per_lsb_z + mag_offset_compensation_z;
 
 	data->accel_temperature = temp_per_lsb * (raw->accel_temperature + 24.0f * 2.0f) + TEMP_OFFSET;
 	// TODO add temperature compensation.

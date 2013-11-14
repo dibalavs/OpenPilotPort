@@ -494,9 +494,9 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         	mag_data.mag_x *= uT_to_mGa;
         	mag_data.mag_y *= uT_to_mGa;
         	mag_data.mag_z *= uT_to_mGa;
-            float mags[3] = { mag_data.mag_y * mag_scale[0] - mag_bias[0],
-                              mag_data.mag_x * mag_scale[1] - mag_bias[1],
-                              -mag_data.mag_z * mag_scale[2] - mag_bias[2] };
+            float mags[3] = { mag_data.mag_x * mag_scale[0] - mag_bias[0],
+                              mag_data.mag_y * mag_scale[1] - mag_bias[1],
+                              mag_data.mag_z * mag_scale[2] - mag_bias[2] };
             if (rotate) {
                 float mag_out[3];
                 rot_mult(R, mags, mag_out);
