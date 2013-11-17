@@ -229,7 +229,9 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     // Main task loop
     lastSysTime = xTaskGetTickCount();
     bool error = false;
+    uint32_t updateTimeout;
     while (1) {
+    	updateTimeout = 100000;
         // TODO: add timeouts to the sensor reads and set an error if the fail
         sensor_dt_us = PIOS_DELAY_DiffuS(timeval);
         timeval = PIOS_DELAY_GetRaw();
@@ -356,45 +358,49 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 			{
 				// Accelerometer data
 				static uint32_t lastAccelUpdate = 0;
-				struct pios_bmc050_accel_data accel_data;
-				if(PIOS_DELAY_DiffuS(lastAccelUpdate) >= PIOS_BMC050_GetUpdateAccelTimeoutuS())
+				uint32_t accelTimeout = PIOS_BMC050_GetUpdateAccelTimeoutuS();
+				if (updateTimeout > accelTimeout)
+					updateTimeout = accelTimeout;
+				if(PIOS_DELAY_DiffuS(lastAccelUpdate) >= accelTimeout)
 				{
 					lastAccelUpdate = PIOS_DELAY_GetRaw();
 					PIOS_BMC050_ObtainAccelData();
-				}
 
-				PIOS_BMC050_ReadAccel(&accel_data);
-				accel_accum[1] += accel_data.accel_x;
-				accel_accum[0] += accel_data.accel_y;
-				accel_accum[2] -= accel_data.accel_z;
-				accel_samples++;
-				accel_scaling = PIOS_BMC050_GetAccelScale();
-				accelsData.temperature = accel_data.accel_temperature;
-				error = true; // need wait for data.
+					struct pios_bmc050_accel_data accel_data;
+					PIOS_BMC050_ReadAccel(&accel_data);
+					accel_accum[1] += accel_data.accel_x;
+					accel_accum[0] += accel_data.accel_y;
+					accel_accum[2] -= accel_data.accel_z;
+					accel_samples++;
+					accel_scaling = PIOS_BMC050_GetAccelScale();
+					accelsData.temperature = accel_data.accel_temperature;
+				}
 			}
 #endif
 #if defined(PIOS_INCLUDE_L3G4200D)
             {
-                struct pios_l3g_gyro_data gyro;
                 static uint32_t lastGyroUpdate = 0;
+                uint32_t gyroTimeout = PIOS_L3G4200D_GetUpdateGyroTimeoutuS();
                 gyro_samples = 0;
-                if(PIOS_DELAY_DiffuS(lastGyroUpdate) >= PIOS_L3G4200D_GetUpdateGyroTimeoutuS()*2)
+                if (updateTimeout > gyroTimeout)
+					updateTimeout = gyroTimeout;
+                if(PIOS_DELAY_DiffuS(lastGyroUpdate) >= gyroTimeout)
 				{
 					lastGyroUpdate = PIOS_DELAY_GetRaw();
 					PIOS_L3G4200D_ObtainData();
+
+					struct pios_l3g_gyro_data gyro;
+					PIOS_L3G4200D_ReadGyro(&gyro);
+					gyro_samples   = 1;
+					gyro_accum[1] += gyro.gyro_x;
+					gyro_accum[0] += gyro.gyro_y;
+					gyro_accum[2] -= gyro.gyro_z;
+
+					gyro_scaling = 1.0f;
+
+					// Get temp from last reading
+					gyrosData.temperature = gyro.temperature;
 				}
-
-                PIOS_L3G4200D_ReadGyro(&gyro);
-                gyro_samples   = 1;
-                gyro_accum[1] += gyro.gyro_x;
-                gyro_accum[0] += gyro.gyro_y;
-                gyro_accum[2] -= gyro.gyro_z;
-
-                gyro_scaling = 1.0f;
-
-                // Get temp from last reading
-                gyrosData.temperature = gyro.temperature;
-                error = true;
             }
 #endif /* if defined(PIOS_INCLUDE_L3GD20) */
         	break;
@@ -402,52 +408,58 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             PIOS_DEBUG_Assert(0);
         }
 
-        // Scale the accels
-        float accels[3]     = { (float)accel_accum[0] / accel_samples,
-                                (float)accel_accum[1] / accel_samples,
-                                (float)accel_accum[2] / accel_samples };
-        float accels_out[3] = { accels[0] * accel_scaling * accel_scale[0] - accel_bias[0],
-                                accels[1] * accel_scaling * accel_scale[1] - accel_bias[1],
-                                accels[2] * accel_scaling * accel_scale[2] - accel_bias[2] };
-        if (rotate) {
-            rot_mult(R, accels_out, accels);
-            accelsData.x = accels[0];
-            accelsData.y = accels[1];
-            accelsData.z = accels[2];
-        } else {
-            accelsData.x = accels_out[0];
-            accelsData.y = accels_out[1];
-            accelsData.z = accels_out[2];
-        }
-        AccelsSet(&accelsData);
-
-        // Scale the gyros
-        float gyros[3]     = { (float)gyro_accum[0] / gyro_samples,
-                               (float)gyro_accum[1] / gyro_samples,
-                               (float)gyro_accum[2] / gyro_samples };
-        float gyros_out[3] = { gyros[0] * gyro_scaling * gyro_scale[0] - gyro_staticbias[0],
-                               gyros[1] * gyro_scaling * gyro_scale[1] - gyro_staticbias[1],
-                               gyros[2] * gyro_scaling * gyro_scale[2] - gyro_staticbias[2] };
-        if (rotate) {
-            rot_mult(R, gyros_out, gyros);
-            gyrosData.x = gyros[0];
-            gyrosData.y = gyros[1];
-            gyrosData.z = gyros[2];
-        } else {
-            gyrosData.x = gyros_out[0];
-            gyrosData.y = gyros_out[1];
-            gyrosData.z = gyros_out[2];
+        if (accel_samples > 0)
+        {
+        	// Scale the accels
+			float accels[3]     = { (float)accel_accum[0] / accel_samples,
+									(float)accel_accum[1] / accel_samples,
+									(float)accel_accum[2] / accel_samples };
+			float accels_out[3] = { accels[0] * accel_scaling * accel_scale[0] - accel_bias[0],
+									accels[1] * accel_scaling * accel_scale[1] - accel_bias[1],
+									accels[2] * accel_scaling * accel_scale[2] - accel_bias[2] };
+			if (rotate) {
+				rot_mult(R, accels_out, accels);
+				accelsData.x = accels[0];
+				accelsData.y = accels[1];
+				accelsData.z = accels[2];
+			} else {
+				accelsData.x = accels_out[0];
+				accelsData.y = accels_out[1];
+				accelsData.z = accels_out[2];
+			}
+			AccelsSet(&accelsData);
         }
 
-        if (bias_correct_gyro) {
-            // Apply bias correction to the gyros from the state estimator
-            GyrosBiasData gyrosBias;
-            GyrosBiasGet(&gyrosBias);
-            gyrosData.x -= gyrosBias.x;
-            gyrosData.y -= gyrosBias.y;
-            gyrosData.z -= gyrosBias.z;
+        if (gyro_samples > 0)
+        {
+        	// Scale the gyros
+			float gyros[3]     = { (float)gyro_accum[0] / gyro_samples,
+								   (float)gyro_accum[1] / gyro_samples,
+								   (float)gyro_accum[2] / gyro_samples };
+			float gyros_out[3] = { gyros[0] * gyro_scaling * gyro_scale[0] - gyro_staticbias[0],
+								   gyros[1] * gyro_scaling * gyro_scale[1] - gyro_staticbias[1],
+								   gyros[2] * gyro_scaling * gyro_scale[2] - gyro_staticbias[2] };
+			if (rotate) {
+				rot_mult(R, gyros_out, gyros);
+				gyrosData.x = gyros[0];
+				gyrosData.y = gyros[1];
+				gyrosData.z = gyros[2];
+			} else {
+				gyrosData.x = gyros_out[0];
+				gyrosData.y = gyros_out[1];
+				gyrosData.z = gyros_out[2];
+			}
+
+			if (bias_correct_gyro) {
+				// Apply bias correction to the gyros from the state estimator
+				GyrosBiasData gyrosBias;
+				GyrosBiasGet(&gyrosBias);
+				gyrosData.x -= gyrosBias.x;
+				gyrosData.y -= gyrosBias.y;
+				gyrosData.z -= gyrosBias.z;
+			}
+			GyrosSet(&gyrosData);
         }
-        GyrosSet(&gyrosData);
 
         // Because most crafts wont get enough information from gravity to zero yaw gyro, we try
         // and make it average zero (weakly)
@@ -483,11 +495,13 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 #endif /* if defined(PIOS_INCLUDE_HMC5883) */
 
 #if defined(PIOS_INCLUDE_BMC050)
-        MagnetometerData mag;
         static uint32_t lastMagUpdate = 0;
-        error = true;
-        if (PIOS_DELAY_DiffuS(lastMagUpdate) >= PIOS_BMC050_GetUpdateMagTimeoutuS()) {
-        	lastMagUpdate = timeval;
+        uint32_t magTimeout = PIOS_BMC050_GetUpdateMagTimeoutuS();
+        if (updateTimeout > magTimeout)
+        	updateTimeout = magTimeout;
+        if (PIOS_DELAY_DiffuS(lastMagUpdate) >= magTimeout) {
+        	MagnetometerData mag;
+        	lastMagUpdate = PIOS_DELAY_GetRaw();
         	PIOS_BMC050_ObtainMagData();
         	struct pios_bmc050_mag_data mag_data;
         	PIOS_BMC050_ReadMag(&mag_data);
@@ -523,6 +537,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 #endif
 
         lastSysTime = xTaskGetTickCount();
+        vTaskDelay(updateTimeout / 2 / 1000 / portTICK_RATE_MS);
     }
 }
 
@@ -531,7 +546,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
  * Magnetometer Offset Cancellation: Theory and Implementation,
  * revisited William Premerlani, October 14, 2011
  */
-static void magOffsetEstimation(MagnetometerData *mag)
+ static void magOffsetEstimation(MagnetometerData *mag)
 {
 #if 0
     // Constants, to possibly go into a UAVO
