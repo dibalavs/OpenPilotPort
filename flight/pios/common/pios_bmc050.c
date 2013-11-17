@@ -59,7 +59,7 @@
 #define BMC_MAG_REPETITION_Z_ADDR      0x52
 
 #define GRAVITY_CONST 9.81f
-#define TEMP_OFFSET  (-8.0f)
+#define TEMP_OFFSET  (-4.0f)
 #define BYTE_TO_SINT32(x) ((int32_t)((int8_t)(x)))
 
 // magnetometer parameters (uT)

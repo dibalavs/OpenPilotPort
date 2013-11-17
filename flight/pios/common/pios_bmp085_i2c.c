@@ -32,6 +32,8 @@
 
 #ifdef PIOS_INCLUDE_BMP085_I2C
 
+#define TEMPERATURE_OFFSET (-3.0f)
+
 /* Glocal Variables */
 ConversionTypeTypeDef CurrentRead;
 
@@ -149,9 +151,9 @@ void PIOS_BMP085_ReadADC(void)
     }
 }
 
-int16_t PIOS_BMP085_GetTemperature(void)
+float PIOS_BMP085_GetTemperature(void)
 {
-    return Temperature;
+    return Temperature / 10.0f + TEMPERATURE_OFFSET;
 }
 
 float PIOS_BMP085_GetPressure(void)

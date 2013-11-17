@@ -75,7 +75,7 @@ extern int32_t PIOS_BMP085_EOC;
 extern void PIOS_BMP085_Init(uint32_t i2c_id);
 extern void PIOS_BMP085_StartADC(ConversionTypeTypeDef Type);
 extern void PIOS_BMP085_ReadADC(void);
-extern int16_t PIOS_BMP085_GetTemperature(void);
+extern float PIOS_BMP085_GetTemperature(void);
 extern float PIOS_BMP085_GetPressure(void); // kpa
 extern bool PIOS_BMP085_Read(uint8_t address, uint8_t *buffer, uint8_t len);
 extern bool PIOS_BMP085_Write(uint8_t address, uint8_t buffer);

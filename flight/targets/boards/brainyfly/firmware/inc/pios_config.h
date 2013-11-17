@@ -83,9 +83,9 @@
 //#define PIOS_INCLUDE_BMP085
 
 // Sensort on brainyfly
-//#define PIOS_INCLUDE_BMP085_I2C
+#define PIOS_INCLUDE_BMP085_I2C
 #define PIOS_INCLUDE_BMC050
-#define PIOS_INCLUDE_LPS331AP
+//#define PIOS_INCLUDE_LPS331AP
 #define PIOS_INCLUDE_L3G4200D
 // end of sensors
 

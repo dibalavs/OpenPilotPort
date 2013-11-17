@@ -180,7 +180,12 @@ static void altitudeTask(__attribute__((unused)) void *parameters)
 #endif
 
 #ifdef PIOS_INCLUDE_BMP085_I2C
+        PIOS_BMP085_StartADC(TemperatureConv);
+        vTaskDelay(5 / portTICK_RATE_MS);
+		PIOS_BMP085_ReadADC();
+		temp = PIOS_BMP085_GetTemperature();
         PIOS_BMP085_StartADC(PressureConv);
+        vTaskDelay(30 / portTICK_RATE_MS);
         PIOS_BMP085_ReadADC();
         press += PIOS_BMP085_GetPressure();
         pressCounter +=1;
