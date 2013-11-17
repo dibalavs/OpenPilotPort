@@ -90,9 +90,9 @@ enum { L3G_CTRL_REG5_HP_FILTER_EN = 0x10 };
 enum { L3G_STATUS_REG_XYZDA = 0x08 };
 
 struct pios_l3g_gyro_data {
-    float gyro_x; // g
-    float gyro_y; // g
-    float gyro_z; // g
+    float gyro_x; // deg/sec
+    float gyro_y; // deg/sec
+    float gyro_z; // deg/sec
     float temperature; // C
 };
 
@@ -106,7 +106,6 @@ struct pios_l3g_cfg {
 extern void PIOS_L3G4200D_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_l3g_cfg *cfg);
 
 // Gyro functions
-extern float PIOS_L3G4200D_GetScale();
 extern int32_t PIOS_L3G4200D_ReadGyro(struct pios_l3g_gyro_data *data);
 extern void PIOS_L3G4200D_ObtainData();
 extern uint32_t PIOS_L3G4200D_GetUpdateGyroTimeoutuS();

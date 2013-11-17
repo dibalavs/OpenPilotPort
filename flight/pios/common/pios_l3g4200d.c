@@ -32,6 +32,13 @@
 
 #ifdef PIOS_INCLUDE_L3G4200D
 
+#define BYTE_TO_SINT32(x) ((int32_t)((int8_t)(x)))
+
+static const float temperature_offset = 36.0f; // C
+static const float x_offset = 24.0f; // deg/sec
+static const float y_offset = 1.0f; // deg/sec
+static const float z_offset = 0.0f; // deg/sec
+
 struct l3g_dev {
     uint32_t spi_id;
     uint32_t slave_num;
@@ -185,12 +192,25 @@ void PIOS_L3G4200D_ObtainData()
 	while((PIOS_L3G4200D_GetReg(L3G_STATUS_REG_ADDR) & L3G_STATUS_REG_XYZDA) == 0);
 
 	// temp coord
-	uint32_t tempRaw = PIOS_L3G4200D_GetReg(L3G_OUT_TEMP_ADDR);
-	data.temperature = 50.0f - tempRaw;// todo add conversion
+	uint8_t tempRaw = PIOS_L3G4200D_GetReg(L3G_OUT_TEMP_ADDR);
+	data.temperature = temperature_offset - tempRaw;
 
-	data.gyro_x = PIOS_L3G4200D_GetReg(L3G_OUT_X_LBS_ADDR) + (PIOS_L3G4200D_GetReg(L3G_OUT_X_LBS_ADDR + 1) << 8 );
-	data.gyro_y = PIOS_L3G4200D_GetReg(L3G_OUT_Y_LBS_ADDR) + (PIOS_L3G4200D_GetReg(L3G_OUT_Y_LBS_ADDR + 1) << 8 );
-	data.gyro_z = PIOS_L3G4200D_GetReg(L3G_OUT_Z_LBS_ADDR) + (PIOS_L3G4200D_GetReg(L3G_OUT_Z_LBS_ADDR + 1) << 8 );
+	int32_t lbs = PIOS_L3G4200D_GetReg(L3G_OUT_X_LBS_ADDR);
+	int32_t hbs = BYTE_TO_SINT32(PIOS_L3G4200D_GetReg(L3G_OUT_X_LBS_ADDR + 1));
+	data.gyro_x = lbs + (hbs << 8 );
+
+	lbs = PIOS_L3G4200D_GetReg(L3G_OUT_Y_LBS_ADDR);
+	hbs = BYTE_TO_SINT32(PIOS_L3G4200D_GetReg(L3G_OUT_Y_LBS_ADDR + 1));
+	data.gyro_y = lbs + (hbs << 8 );
+
+	lbs = PIOS_L3G4200D_GetReg(L3G_OUT_Z_LBS_ADDR);
+	hbs = BYTE_TO_SINT32(PIOS_L3G4200D_GetReg(L3G_OUT_Z_LBS_ADDR + 1));
+	data.gyro_z = lbs + (hbs << 8 );
+
+	const float scale = PIOS_L3G4200D_GetScale();
+	data.gyro_x = (data.gyro_x * scale + x_offset) / 3.0f;
+	data.gyro_y = (data.gyro_y * scale + y_offset) / 3.0f;
+	data.gyro_z = (data.gyro_z * scale + z_offset) / 3.0f;
 
 	data_ready = true;
 }

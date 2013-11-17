@@ -168,7 +168,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     uint32_t accel_samples = 0;
     uint32_t gyro_samples  = 0;
     float accel_accum[3] = { 0, 0, 0 };
-    int32_t gyro_accum[3]  = { 0, 0, 0 };
+    float gyro_accum[3]  = { 0, 0, 0 };
     float gyro_scaling     = 0;
     float accel_scaling    = 0;
     static int32_t timeval;
@@ -378,7 +378,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
                 struct pios_l3g_gyro_data gyro;
                 static uint32_t lastGyroUpdate = 0;
                 gyro_samples = 0;
-                if(PIOS_DELAY_DiffuS(lastGyroUpdate) >= PIOS_L3G4200D_GetUpdateGyroTimeoutuS())
+                if(PIOS_DELAY_DiffuS(lastGyroUpdate) >= PIOS_L3G4200D_GetUpdateGyroTimeoutuS()*2)
 				{
 					lastGyroUpdate = PIOS_DELAY_GetRaw();
 					PIOS_L3G4200D_ObtainData();
@@ -390,7 +390,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
                 gyro_accum[0] += gyro.gyro_y;
                 gyro_accum[2] -= gyro.gyro_z;
 
-                gyro_scaling = PIOS_L3G4200D_GetScale();
+                gyro_scaling = 1.0f;
 
                 // Get temp from last reading
                 gyrosData.temperature = gyro.temperature;
