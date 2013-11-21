@@ -336,18 +336,20 @@ static void PIOS_Board_configure_pwm(const struct pios_pwm_cfg *pwm_cfg)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PWM] = pios_pwm_rcvr_id;
 }
 
+#ifdef PIOS_INCLUDE_PPM
 static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
 {
     uint32_t pios_ppm_id;
 
     PIOS_PPM_Init(&pios_ppm_id, ppm_cfg);
 
-    uint32_t pios_ppm_rcvr_id;
+    uint32_t pios_ppm_rfcvr_id;
     if (PIOS_RCVR_Init(&pios_ppm_rcvr_id, &pios_ppm_rcvr_driver, pios_ppm_id)) {
         PIOS_Assert(0);
     }
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM] = pios_ppm_rcvr_id;
 }
+#endif // #ifdef PIOS_INCLUDE_PPM
 
 #if defined(PIOS_INCLUDE_RFM22B)
 static void PIOS_Board_PPM_callback(const int16_t *channels)

@@ -96,7 +96,7 @@
 
 /* PIOS receiver drivers */
 #define PIOS_INCLUDE_PWM
-#define PIOS_INCLUDE_PPM
+//#define PIOS_INCLUDE_PPM
 /* #define PIOS_INCLUDE_PPM_FLEXI */
 //#define PIOS_INCLUDE_I2C_FLEXI
 //#define PIOS_INCLUDE_DSM

@@ -979,7 +979,7 @@ static const struct pios_i2c_adapter_cfg pios_i2c_2_bus_cfg = {
 void PIOS_RTC_IRQ_Handler(void);
 void RTC_WKUP_IRQHandler() __attribute__((alias("PIOS_RTC_IRQ_Handler")));
 static const struct pios_rtc_cfg pios_rtc_main_cfg = {
-    .clksrc    = RCC_RTCCLKSource_HSE_Div8, // Divide 8 Mhz crystal down to 1
+    .clksrc    = RCC_RTCCLKSource_HSE_Div16, // Divide 16 Mhz crystal down to 1
     // For some reason it's acting like crystal is 16 Mhz.  This clock is then divided
     // by another 16 to give a nominal 62.5 khz clock
     .prescaler = 100, // Every 100 cycles gives 625 Hz
@@ -1161,38 +1161,70 @@ static const struct pios_tim_clock_cfg tim_12_cfg = {
  */
 #include <pios_servo_priv.h>
 static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
-    {
-        .timer = TIM3,
-        .timer_chan = TIM_Channel_3,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_0,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource0,
-        },
-        .remap = GPIO_AF_TIM3,
-    },
-    {
-        .timer = TIM3,
-        .timer_chan = TIM_Channel_4,
-        .pin   = {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_1,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_AF,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-            .pin_source     = GPIO_PinSource1,
-        },
-        .remap = GPIO_AF_TIM3,
-    },
+		{
+			.timer = TIM3,
+			.timer_chan = TIM_Channel_2,
+			.pin   = {
+				.gpio = GPIOC,
+				.init = {
+					.GPIO_Pin   = GPIO_Pin_7,
+					.GPIO_Speed = GPIO_Speed_2MHz,
+					.GPIO_Mode  = GPIO_Mode_AF,
+					.GPIO_OType = GPIO_OType_PP,
+					.GPIO_PuPd  = GPIO_PuPd_UP
+				},
+				.pin_source     = GPIO_PinSource7,
+			},
+			.remap = GPIO_AF_TIM3,
+		},
+	{
+			.timer = TIM3,
+			.timer_chan = TIM_Channel_3,
+			.pin   = {
+				.gpio = GPIOC,
+				.init = {
+					.GPIO_Pin   = GPIO_Pin_8,
+					.GPIO_Speed = GPIO_Speed_2MHz,
+					.GPIO_Mode  = GPIO_Mode_AF,
+					.GPIO_OType = GPIO_OType_PP,
+					.GPIO_PuPd  = GPIO_PuPd_UP
+				},
+				.pin_source     = GPIO_PinSource8,
+			},
+			.remap = GPIO_AF_TIM3,
+	},
+	{
+	        .timer = TIM3,
+	        .timer_chan = TIM_Channel_4,
+	        .pin   = {
+	            .gpio = GPIOC,
+	            .init = {
+	                .GPIO_Pin   = GPIO_Pin_9,
+	                .GPIO_Speed = GPIO_Speed_2MHz,
+	                .GPIO_Mode  = GPIO_Mode_AF,
+	                .GPIO_OType = GPIO_OType_PP,
+	                .GPIO_PuPd  = GPIO_PuPd_UP
+	            },
+	            .pin_source     = GPIO_PinSource9,
+	        },
+	        .remap = GPIO_AF_TIM3,
+	},
+	{
+		.timer = TIM3,
+		.timer_chan = TIM_Channel_1,
+		.pin   = {
+			.gpio = GPIOC,
+			.init = {
+				.GPIO_Pin   = GPIO_Pin_6,
+				.GPIO_Speed = GPIO_Speed_2MHz,
+				.GPIO_Mode  = GPIO_Mode_AF,
+				.GPIO_OType = GPIO_OType_PP,
+				.GPIO_PuPd  = GPIO_PuPd_UP
+			},
+			.pin_source     = GPIO_PinSource6,
+		},
+		.remap = GPIO_AF_TIM3,
+	},
     {
         .timer = TIM9,
         .timer_chan = TIM_Channel_2,
@@ -1366,7 +1398,7 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
 //        .remap = GPIO_AF_TIM12,
 //    },
 };
-#define PIOS_SERVOPORT_ALL_PINS_PWMOUT        6
+#define PIOS_SERVOPORT_ALL_PINS_PWMOUT        4
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM 11
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     10
 
