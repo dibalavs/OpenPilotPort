@@ -208,9 +208,9 @@ void PIOS_L3G4200D_ObtainData()
 	data.gyro_z = lbs + (hbs << 8 );
 
 	const float scale = PIOS_L3G4200D_GetScale();
-	data.gyro_x = (data.gyro_x * scale + x_offset) / 3.0f;
-	data.gyro_y = (data.gyro_y * scale + y_offset) / 3.0f;
-	data.gyro_z = (data.gyro_z * scale + z_offset) / 3.0f;
+	data.gyro_x = (data.gyro_x * scale + x_offset) / 5.0f;
+	data.gyro_y = (data.gyro_y * scale + y_offset) / 5.0f;
+	data.gyro_z = (data.gyro_z * scale + z_offset) / 5.0f;
 
 	data_ready = true;
 }

@@ -779,7 +779,7 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
 
     // Don't require HomeLocation.Set to be true but at least require a mag configuration (allows easily
     // switching between indoor and outdoor mode with Set = false)
-    if ((homeLocation.Be[0] * homeLocation.Be[0] + homeLocation.Be[1] * homeLocation.Be[1] + homeLocation.Be[2] * homeLocation.Be[2] < 1e-5f)) {
+    if (outdoor_mode && (homeLocation.Be[0] * homeLocation.Be[0] + homeLocation.Be[1] * homeLocation.Be[1] + homeLocation.Be[2] * homeLocation.Be[2] < 1e-5f)) {
         mag_updated = false;
         value_error = true;
     }
@@ -1100,7 +1100,10 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
     gyrosBias.x = RAD2DEG(Nav.gyro_bias[0]);
     gyrosBias.y = RAD2DEG(Nav.gyro_bias[1]);
     gyrosBias.z = RAD2DEG(Nav.gyro_bias[2]);
-    GyrosBiasSet(&gyrosBias);
+    if (!invalid(gyrosBias.x) && !invalid(gyrosBias.y) && !invalid(gyrosBias.z))
+    {
+    	GyrosBiasSet(&gyrosBias);
+    }
 
     EKFStateVarianceData vardata;
     EKFStateVarianceGet(&vardata);
