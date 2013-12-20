@@ -189,6 +189,9 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     GPIO_Init(usart_dev->cfg->rx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->rx.init);
     GPIO_Init(usart_dev->cfg->tx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->tx.init);
 
+    if (usart_dev->cfg->init.USART_BaudRate >= 115200)
+    	USART_OverSampling8Cmd(usart_dev->cfg->regs, ENABLE);
+
     /* Configure the USART */
     USART_Init(usart_dev->cfg->regs, (USART_InitTypeDef *)&usart_dev->cfg->init);
 
