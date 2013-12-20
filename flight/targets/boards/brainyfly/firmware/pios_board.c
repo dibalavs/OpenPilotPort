@@ -295,6 +295,13 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
             PIOS_Assert(0);
         }
     }
+
+#ifdef PIOS_INCLUDE_XBEE
+    PIOS_DELAY_WaitmS(3000); // Wait for XBEE initialization
+    PIOS_COM_SendChar(*pios_com_id, 'b'); // bypass mode
+    PIOS_COM_SendChar(*pios_com_id, 'B');
+    PIOS_COM_SendChar(*pios_com_id, 'b');
+#endif //PIOS_INCLUDE_XBEE
 }
 
 #ifdef PIOS_INCLUDE_DSM
@@ -508,7 +515,7 @@ void PIOS_Board_Init(void)
     }
 #endif //PIOS_INCLUDE_IAP
 
-    // PIOS_IAP_Init();
+     //PIOS_IAP_Init();
 
 #if defined(PIOS_INCLUDE_USB)
     /* Initialize board specific USB data */
@@ -648,6 +655,12 @@ void PIOS_Board_Init(void)
     HwSettingsDSMxBindGet(&hwsettings_DSMxBind);
 
     /* Configure main USART port */
+    const struct pios_usart_cfg *main_port_cfg =
+#ifdef PIOS_INCLUDE_XBEE
+    		&pios_xbee_main_cfg;
+#elif defined(PIOS_INCLUDE_USART)
+    		&pios_usart_main_cfg;
+#endif // INCLUDE_XBEE
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
    // hwsettings_mainport = HWSETTINGS_RM_MAINPORT_COMBRIDGE; // TODO remove
@@ -655,16 +668,16 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_MAINPORT_DISABLED:
         break;
     case HWSETTINGS_RM_MAINPORT_TELEMETRY:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
+        PIOS_Board_configure_com(main_port_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
     case HWSETTINGS_RM_MAINPORT_GPS:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
+        PIOS_Board_configure_com(main_port_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
         break;
     case HWSETTINGS_RM_MAINPORT_SBUS:
 #if defined(PIOS_INCLUDE_SBUS)
         {
             uint32_t pios_usart_sbus_id;
-            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_main_cfg)) {
+            if (PIOS_USART_Init(&pios_usart_sbus_id, &main_port_cfg)) {
                 PIOS_Assert(0);
             }
 
@@ -707,7 +720,7 @@ void PIOS_Board_Init(void)
         hwsettings_DSMxBind = 0;
 
         // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
-        PIOS_Board_configure_dsm(&pios_usart_dsm_main_cfg, &pios_dsm_main_cfg,
+        PIOS_Board_configure_dsm(main_port_cfg, &pios_dsm_main_cfg,
                                  &pios_usart_com_driver, &proto, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
     }
     break;
@@ -716,15 +729,15 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
-            PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+            PIOS_Board_configure_com(main_port_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
     case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
+        PIOS_Board_configure_com(main_port_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
     case HWSETTINGS_RM_MAINPORT_OSDHK:
-        PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
+        PIOS_Board_configure_com(main_port_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     } /*        hwsettings_rm_mainport */
 
