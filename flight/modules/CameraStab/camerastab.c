@@ -144,6 +144,8 @@ int32_t CameraStabStart(void)
 
 MODULE_INITCALL(CameraStabInitialize, CameraStabStart);
 
+// WARNING!!! this callback makes dedlock in FreeRTOS.
+// Need more investigation about the reasones.
 static void attitudeUpdated(UAVObjEvent *ev)
 {
     if (ev->obj != AttitudeActualHandle()) {
